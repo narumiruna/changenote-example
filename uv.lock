@@ -1,0 +1,35 @@
+version = 1
+revision = 5
+requires-python = ">=3.14"
+
+[manifest]
+members = [
+    "changenote-example",
+    "pkg-a",
+    "pkg-b",
+]
+
+[[package]]
+name = "changenote-example"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "pkg-a" },
+    { name = "pkg-b" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pkg-a", editable = "packages/pkg-a" },
+    { name = "pkg-b", editable = "packages/pkg-b" },
+]
+
+[[package]]
+name = "pkg-a"
+version = "0.1.0"
+source = { editable = "packages/pkg-a" }
+
+[[package]]
+name = "pkg-b"
+version = "0.1.0"
+source = { editable = "packages/pkg-b" }

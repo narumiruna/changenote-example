@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "changenote-manage-releases": {
+      "source": "narumiruna/changenote",
+      "sourceType": "github",
+      "skillPath": "skills/changenote-manage-releases/SKILL.md",
+      "computedHash": "fc7849563ed9fd1144a6cf221358933b3a044569e04b7dfe04039535303693cd"
+    }
+  }
+}
