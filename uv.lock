@@ -5,8 +5,7 @@ requires-python = ">=3.14"
 [manifest]
 members = [
     "changenote-example",
-    "pkg-a",
-    "pkg-b",
+    "pkg-python",
 ]
 
 [[package]]
@@ -14,22 +13,13 @@ name = "changenote-example"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "pkg-a" },
-    { name = "pkg-b" },
+    { name = "pkg-python" },
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "pkg-a", editable = "packages/pkg-a" },
-    { name = "pkg-b", editable = "packages/pkg-b" },
-]
+requires-dist = [{ name = "pkg-python", editable = "packages/pkg-python" }]
 
 [[package]]
-name = "pkg-a"
+name = "pkg-python"
 version = "0.1.0"
-source = { editable = "packages/pkg-a" }
-
-[[package]]
-name = "pkg-b"
-version = "0.1.0"
-source = { editable = "packages/pkg-b" }
+source = { editable = "packages/pkg-python" }

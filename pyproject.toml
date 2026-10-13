@@ -4,11 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = ["pkg-a", "pkg-b"]
+dependencies = ["pkg-python"]
 
 [tool.uv.sources]
-pkg-a = { workspace = true }
-pkg-b = { workspace = true }
+pkg-python = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/*"]
+members = ["packages/pkg-python"]
