@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: changenote-release-main
+  cancel-in-progress: false
+
+jobs:
+  release:
+    permissions:
+      contents: write
+      pull-requests: write
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install changenote
+        run: cargo install --git https://github.com/narumiruna/changenote --rev 77d19d9d5253897b1d47d2b72b95ddc3b751e691 --locked
+      - uses: narumiruna/changenote@77d19d9d5253897b1d47d2b72b95ddc3b751e691
+        with:
+          base-branch: main
+
+  publish:
+    needs: release
+    if: ${{ always() && github.ref == 'refs/heads/main' && needs.release.result != 'cancelled' }}
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install changenote
+        run: cargo install --git https://github.com/narumiruna/changenote --rev 77d19d9d5253897b1d47d2b72b95ddc3b751e691 --locked
+      - uses: narumiruna/changenote/publish@77d19d9d5253897b1d47d2b72b95ddc3b751e691
+        with:
+          base-branch: main
