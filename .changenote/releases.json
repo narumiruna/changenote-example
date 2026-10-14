@@ -1,42 +1,44 @@
 [
   {
     "package": "pkg-go",
-    "old_version": "0.1.0",
-    "version": "0.2.0",
+    "old_version": "0.2.0",
+    "version": "0.3.0",
     "bump": "minor",
-    "tag": "changenote/pkg-go@v0.2.0",
+    "tag": "changenote/pkg-go@v0.3.0",
     "notes": [
-      "Add Rust and Go packages with greeting functions and usage examples."
+      "Example: update greeting options across packages.\n\n- Add a custom greeting prefix to the Go package.\n- Fix extra spaces in the Node.js greeting output."
     ]
   },
   {
     "package": "pkg-node",
-    "old_version": "0.1.0",
-    "version": "0.2.0",
-    "bump": "minor",
-    "tag": "changenote/pkg-node@v0.2.0",
+    "old_version": "0.2.0",
+    "version": "0.2.1",
+    "bump": "patch",
+    "tag": "changenote/pkg-node@v0.2.1",
     "notes": [
-      "Add a Node.js package that exports a hello greeting function."
+      "Example: update greeting options across packages.\n\n- Add a custom greeting prefix to the Go package.\n- Fix extra spaces in the Node.js greeting output.",
+      "Example: fix greeting output when the input name is empty."
     ]
   },
   {
     "package": "pkg-python",
-    "old_version": "0.1.0",
-    "version": "0.1.1",
-    "bump": "patch",
-    "tag": "changenote/pkg-python@v0.1.1",
+    "old_version": "0.1.1",
+    "version": "0.2.0",
+    "bump": "minor",
+    "tag": "changenote/pkg-python@v0.2.0",
     "notes": [
-      "Update the Python module and command names to pkg_python and pkg-python."
+      "Example: add a customizable greeting",
+      "Example: fix greeting output formatting"
     ]
   },
   {
     "package": "pkg-rust",
-    "old_version": "0.1.0",
-    "version": "0.2.0",
+    "old_version": "0.2.0",
+    "version": "0.3.0",
     "bump": "minor",
-    "tag": "changenote/pkg-rust@v0.2.0",
+    "tag": "changenote/pkg-rust@v0.3.0",
     "notes": [
-      "Add Rust and Go packages with greeting functions and usage examples."
+      "Example: add a greeting function that accepts a custom name.\nKeep the default greeting when no name is supplied."
     ]
   }
 ]
