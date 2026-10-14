@@ -9,7 +9,7 @@ Requires stable Rust with edition 2024 support. Git is required for PR checks. P
 Install the exact CLI revision used by the workflows:
 
 ```sh
-cargo install --git https://github.com/narumiruna/changenote --rev c97ca89a7fcc7c37bad87d5fb9316ef5c1bcf7ce --locked
+cargo install --git https://github.com/narumiruna/changenote --rev 3bb70bcc07a04bbaf6210d1b55e405df7b22cb35 --locked
 ```
 
 This is a pinned source revision, not a promise that the latest published binary has the same features. Install the compatible CLI before running these examples.
@@ -25,7 +25,10 @@ This is a pinned source revision, not a promise that the latest published binary
 | Manifest sources and exact JSON formatting | [manifest guide](examples/manifests/README.md) | Supported |
 | Read-only PR note check and explicit exemption | [PR check guide](examples/check/README.md) | Supported |
 | Release PRs, tags, and GitHub Releases | [release workflow](.github/workflows/release.yml) | Supported; not run by verification |
-| Fixed or linked groups | — | Not supported |
+| Note provenance and automatic names | [planning guide](examples/planning/README.md) | Supported |
+| Fixed version groups | [fixed fixtures](examples/planning/README.md#fixed-version-groups) | Supported |
+| Read-only publication preview | [preview template and mock reports](examples/preview/README.md) | Supported; not dispatched by verification |
+| Linked groups | — | Not supported |
 | Dependency propagation and lockfile updates | — | Not supported |
 | Snapshots and prereleases | — | Not supported |
 | Registry publication | — | Not provided by the reusable Actions |
@@ -54,7 +57,7 @@ Never copy all sample notes into this repository's active `.changenote/`. That d
 uv run --no-project python scripts/verify_examples.py --cli changenote
 ```
 
-For local CLI development, pass the absolute path to the built executable instead. The verifier copies fixtures into temporary directories and checks status JSON, mixed-bump creation, PR note checks, expected exit codes, and failure paths. It verifies that read-only commands and the source repository do not change. It does not run release commands or contact GitHub. Generated changelog and JSON output are covered by the core CLI's Rust tests; static expected excerpts are checked against status details here.
+For local CLI development, pass the absolute path to the built executable instead. The verifier copies fixtures into temporary directories and checks eight fixtures, default/detailed status JSON, named/generated note creation, fixed-group plans, PR note checks, preview mock reports, matching template pins, expected exit codes, and failure paths. It verifies that read-only commands and the source repository do not change. It does not run release commands or contact GitHub. Generated changelog and JSON output are covered by the core CLI's Rust tests; static expected excerpts are checked against status details here.
 
 [Example CI](.github/workflows/examples.yml) installs the same pinned source revision and runs this verifier. The release workflow is separate and runs only on `main` pushes or explicit manual dispatch. Do not dispatch it to test examples.
 
@@ -75,6 +78,6 @@ See the Node.js, Rust, and Go package READMEs for their test commands. The Pytho
 
 ## Release safety
 
-The release workflow pins CLI and both Actions to the same reviewed full commit SHA. Update those pins together. The compatible publication Action verifies either the complete current output tree or the complete legacy output tree; it rejects manual edits and mixed profiles. It can verify an older saved batch after upgrading, without moving tags or replacing releases.
+The release workflow pins CLI and release Actions to the same reviewed full commit SHA. Update those pins together. The compatible publication Action verifies either the complete current output tree or the complete legacy output tree; it rejects manual edits and mixed profiles. It can verify an older saved batch after upgrading, without moving tags or replacing releases.
 
-The source revision for these examples is under review. Merge the core implementation before merging a workflow-pin update that depends on it. Local fixture verification does not prove production permissions, branch rules, or publication on GitHub. Test those separately in a disposable consumer repository when release testing is authorized.
+The source revision for these examples is under review in [changenote PR #28](https://github.com/narumiruna/changenote/pull/28). Merge the core implementation before merging a workflow-pin update that depends on it. Local fixture verification does not prove production permissions, branch rules, or publication on GitHub. Test those separately in a disposable consumer repository when release testing is authorized.

@@ -1,0 +1,16 @@
+[
+  {
+    "name": "pkg-node",
+    "version": "2.4.10",
+    "tag": "changenote/pkg-node@v2.4.10",
+    "action": "none",
+    "conflicts": []
+  },
+  {
+    "name": "pkg-python",
+    "version": "2.4.10",
+    "tag": "changenote/pkg-python@v2.4.10",
+    "action": "create-tag-and-release",
+    "conflicts": []
+  }
+]

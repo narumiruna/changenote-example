@@ -19,6 +19,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: astral-sh/setup-uv@v7
       - name: Install compatible changenote
-        run: cargo install --git https://github.com/narumiruna/changenote --rev c97ca89a7fcc7c37bad87d5fb9316ef5c1bcf7ce --locked
+        run: cargo install --git https://github.com/narumiruna/changenote --rev 3bb70bcc07a04bbaf6210d1b55e405df7b22cb35 --locked
       - name: Verify isolated examples
         run: uv run --no-project python scripts/verify_examples.py --cli changenote
