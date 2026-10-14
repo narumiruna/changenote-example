@@ -158,6 +158,30 @@ def verify_creation(binary):
         )
         assert not (work / ".changenote/bad.md").exists()
 
+    with tempfile.TemporaryDirectory() as temp:
+        work = Path(temp) / "fixture"
+        folder = ROOT / "examples/notes/shared"
+        shutil.copytree(folder / "fixture", work)
+        (work / ".changenote/shared.md").unlink()
+        assert json.loads(cli(binary, work, "status").stdout) == []
+        cli(
+            binary,
+            work,
+            "add",
+            "shared",
+            "-p",
+            "pkg-python",
+            "-p",
+            "pkg-node",
+            "--bump",
+            "patch",
+            "-m",
+            "Fix shared output",
+        )
+        assert json.loads(cli(binary, work, "status").stdout) == json.loads(
+            (folder / "expected-status.json").read_text()
+        )
+
 
 def verify_generated(binary):
     with tempfile.TemporaryDirectory() as temp:
@@ -312,7 +336,7 @@ def main():
         parser.error("CLI executable was not found")
     binary = Path(executable).resolve()
     before = snapshot(ROOT)
-    for name in ("patch", "highest", "mixed", "multiline"):
+    for name in ("patch", "highest", "mixed", "multiline", "major", "shared", "empty"):
         verify_fixture(binary, ROOT / "examples/notes" / name)
     verify_fixture(binary, ROOT / "examples/manifests")
     for name in ("provenance", "fixed-equal", "fixed-unequal"):
@@ -323,7 +347,7 @@ def main():
     verify_check(binary)
     assert snapshot(ROOT) == before, "Verifier changed the example repository"
     print(
-        "Verified 8 fixtures, named/generated notes, PR checks, preview mock reports, and failure paths; no release actions ran."
+        "Verified 11 fixtures, named/generated notes, PR checks, preview mock reports, and failure paths; no release actions ran."
     )
 
 
