@@ -19,6 +19,9 @@ This is a pinned source revision, not a promise that the latest published binary
 | Feature | Example | Status |
 | --- | --- | --- |
 | Single-package patch | [patch fixture](examples/notes/patch/) | Supported |
+| Major bump with migration steps | [major fixture](examples/notes/major/) | Supported |
+| Shared patch across packages | [shared fixture](examples/notes/shared/) | Supported |
+| No pending notes | [empty fixture](examples/notes/empty/) | Supported |
 | Highest requested bump applied once | [highest fixture](examples/notes/highest/) | Supported |
 | Different bumps in one note | [mixed fixture](examples/notes/mixed/) | Supported |
 | Bump groups and multiline Markdown | [multiline fixture](examples/notes/multiline/) | Supported |
@@ -57,7 +60,7 @@ Never copy all sample notes into this repository's active `.changenote/`. That d
 uv run --no-project python scripts/verify_examples.py --cli changenote
 ```
 
-For local CLI development, pass the absolute path to the built executable instead. The verifier copies fixtures into temporary directories and checks eight fixtures, default/detailed status JSON, named/generated note creation, fixed-group plans, PR note checks, preview mock reports, matching template pins, expected exit codes, and failure paths. It verifies that read-only commands and the source repository do not change. It does not run release commands or contact GitHub. Generated changelog and JSON output are covered by the core CLI's Rust tests; static expected excerpts are checked against status details here.
+For local CLI development, pass the absolute path to the built executable instead. The verifier copies fixtures into temporary directories and checks eleven fixtures, default/detailed status JSON, named/generated note creation, fixed-group plans, PR note checks, preview mock reports, matching template pins, expected exit codes, and failure paths. It verifies that read-only commands and the source repository do not change. It does not run release commands or contact GitHub. Generated changelog and JSON output are covered by the core CLI's Rust tests; static expected excerpts are checked against status details here.
 
 [Example CI](.github/workflows/examples.yml) installs the same pinned source revision and runs this verifier. The release workflow is separate and runs only on `main` pushes or explicit manual dispatch. Do not dispatch it to test examples.
 

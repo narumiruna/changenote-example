@@ -1,10 +1,13 @@
 # Note Examples
 
-All fixtures start at `1.2.3`. Each directory contains `fixture/`, `expected-status.json`, and illustrative `expected-*-CHANGELOG.md` files. Only files inside the copied `fixture/` participate in its plan.
+All fixtures start at `1.2.3`. Each directory contains `fixture/` and `expected-status.json`. Fixtures with releases also contain illustrative `expected-*-CHANGELOG.md` files. Only files inside the copied `fixture/` participate in its plan.
 
 | Fixture | Notes | Expected result |
 | --- | --- | --- |
 | `patch` | One Python patch | `1.2.4` |
+| `major` | Breaking Python API change with migration steps | `2.0.0` |
+| `shared` | One patch note for Python and Node.js | Both `1.2.4`, with separate package tags |
+| `empty` | No pending notes | Empty plan (`[]`); version stays `1.2.3` |
 | `highest` | Two patches and one minor | One bump to `1.3.0`, not three bumps |
 | `mixed` | Python minor and Node.js patch in one note | Python `1.3.0`, Node.js `1.2.4` |
 | `multiline` | Minor with nested list and fenced code | `1.3.0`; Markdown stays inside its list item |
@@ -52,6 +55,40 @@ changenote --root "$work" add another -p pkg-python -p pkg-node --bump patch -m 
 ```
 
 That last command adds another note, so the plan no longer equals the original mixed fixture's expected JSON.
+
+## Create a shared-bump note
+
+This changes only the temporary fixture:
+
+```sh
+work=$(mktemp -d)
+cp -R examples/notes/shared/fixture/. "$work/"
+rm "$work/.changenote/shared.md"
+changenote --root "$work" add shared -p pkg-python -p pkg-node --bump patch -m "Fix shared output"
+changenote --root "$work" status
+```
+
+The output must match `shared/expected-status.json`. Both packages receive the same summary and patch bump. Tags use `changenote/<package>@v1.2.4` because the config contains two packages.
+
+## Inspect a breaking change
+
+```sh
+work=$(mktemp -d)
+cp -R examples/notes/major/fixture/. "$work/"
+changenote --root "$work" status
+```
+
+The output must match `major/expected-status.json`. The note describes a sample API change, its effect, and the required replacement call. This fixture explicitly requests `major`, so `1.2.3` becomes `2.0.0`. The CLI does not infer the bump from the summary. The single configured package uses the tag `v2.0.0`.
+
+## Inspect an empty plan
+
+```sh
+work=$(mktemp -d)
+cp -R examples/notes/empty/fixture/. "$work/"
+changenote --root "$work" status
+```
+
+The output must match `empty/expected-status.json`: `[]`. A configured package without pending notes has no planned release. `status` leaves its version file unchanged and does not create a changelog.
 
 ## Generated changelog excerpts
 
