@@ -27,8 +27,8 @@ jobs:
           persist-credentials: false
       - uses: dtolnay/rust-toolchain@stable
       - name: Install changenote
-        run: cargo install --git https://github.com/narumiruna/changenote --rev 77d19d9d5253897b1d47d2b72b95ddc3b751e691 --locked
-      - uses: narumiruna/changenote@77d19d9d5253897b1d47d2b72b95ddc3b751e691
+        run: cargo install --git https://github.com/narumiruna/changenote --rev c97ca89a7fcc7c37bad87d5fb9316ef5c1bcf7ce --locked
+      - uses: narumiruna/changenote@c97ca89a7fcc7c37bad87d5fb9316ef5c1bcf7ce
         with:
           base-branch: main
 
@@ -46,7 +46,7 @@ jobs:
           persist-credentials: false
       - uses: dtolnay/rust-toolchain@stable
       - name: Install changenote
-        run: cargo install --git https://github.com/narumiruna/changenote --rev 77d19d9d5253897b1d47d2b72b95ddc3b751e691 --locked
-      - uses: narumiruna/changenote/publish@77d19d9d5253897b1d47d2b72b95ddc3b751e691
+        run: cargo install --git https://github.com/narumiruna/changenote --rev c97ca89a7fcc7c37bad87d5fb9316ef5c1bcf7ce --locked
+      - uses: narumiruna/changenote/publish@c97ca89a7fcc7c37bad87d5fb9316ef5c1bcf7ce
         with:
           base-branch: main

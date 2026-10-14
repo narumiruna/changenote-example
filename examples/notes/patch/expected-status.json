@@ -1,0 +1,12 @@
+[
+  {
+    "package": "pkg-python",
+    "old_version": "1.2.3",
+    "version": "1.2.4",
+    "bump": "patch",
+    "tag": "v1.2.4",
+    "notes": [
+      "Fix greeting"
+    ]
+  }
+]

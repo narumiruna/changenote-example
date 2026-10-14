@@ -1,0 +1,8 @@
+{
+  "packages": {
+    "pkg-python": {
+      "path": "packages/pkg-python",
+      "version_file": "VERSION"
+    }
+  }
+}

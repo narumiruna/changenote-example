@@ -1,0 +1,20 @@
+{
+  "packages": {
+    "pkg-python": {
+      "path": "packages/pkg-python",
+      "version_file": "pyproject.toml"
+    },
+    "pkg-rust": {
+      "path": "packages/pkg-rust",
+      "version_file": "Cargo.toml"
+    },
+    "pkg-node": {
+      "path": "packages/pkg-node",
+      "version_file": "package.json"
+    },
+    "pkg-go": {
+      "path": "packages/pkg-go",
+      "version_file": "VERSION"
+    }
+  }
+}

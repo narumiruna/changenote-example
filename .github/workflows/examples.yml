@@ -1,0 +1,24 @@
+name: Examples
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: astral-sh/setup-uv@v7
+      - name: Install compatible changenote
+        run: cargo install --git https://github.com/narumiruna/changenote --rev c97ca89a7fcc7c37bad87d5fb9316ef5c1bcf7ce --locked
+      - name: Verify isolated examples
+        run: uv run --no-project python scripts/verify_examples.py --cli changenote
