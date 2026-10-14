@@ -1,0 +1,18 @@
+[
+  {
+    "name": "pkg-node",
+    "version": "2.4.10",
+    "tag": "changenote/pkg-node@v2.4.10",
+    "action": "conflict",
+    "conflicts": [
+      "Remote tag points to another commit: changenote/pkg-node@v2.4.10"
+    ]
+  },
+  {
+    "name": "pkg-python",
+    "version": "2.4.10",
+    "tag": "changenote/pkg-python@v2.4.10",
+    "action": "create-tag-and-release",
+    "conflicts": []
+  }
+]

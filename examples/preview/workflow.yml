@@ -1,0 +1,16 @@
+name: Publication preview
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install changenote
+        run: cargo install --git https://github.com/narumiruna/changenote --rev 3bb70bcc07a04bbaf6210d1b55e405df7b22cb35 --locked
+      - id: preview
+        uses: narumiruna/changenote/preview@3bb70bcc07a04bbaf6210d1b55e405df7b22cb35
+        with:
+          base-branch: main
