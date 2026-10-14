@@ -33,9 +33,9 @@ def cli(binary, cwd, *args, code=0):
     index = cwd / ".git/index"
     index_before = index.read_bytes() if index.exists() else None
     result = command([str(binary), *args], cwd, code)
-    if args[0] != "add":
-        assert snapshot(cwd) == before, "Read-only command changed files"
-        assert (index.read_bytes() if index.exists() else None) == index_before, "Read-only command changed Git index"
+    if args[0] != "add" or code != 0:
+        assert snapshot(cwd) == before, "Read-only command or failed add changed files"
+        assert (index.read_bytes() if index.exists() else None) == index_before, "Read-only command or failed add changed Git index"
     return result
 
 
@@ -102,17 +102,17 @@ def verify_check(binary):
         report = json.loads(cli(binary, work, "check", "--since", "base", "--skip-release", "--reason", "Documentation only").stdout)
         assert report["passed"] and report["skip_reason"] == "Documentation only"
         cli(binary, work, "check", "--since", "base", "--reason", "Docs", code=2)
-        cli(binary, work, "check", "--since", "base", "--skip-release", "--reason", " ", code=1)
         cli(binary, work, "add", "new", "--patch", "pkg-python", "-m", "Update docs")
         commit(work)
         report = json.loads(cli(binary, work, "check", "--since", "base").stdout)
-        assert report["note_paths"] == [".changenote/new.md"]
-        (work / ".changenote/new.md").unlink()
-        commit(work)
-        cli(binary, work, "check", "--since", "base", code=1)
+        assert report["passed"] and report["note_paths"] == [".changenote/new.md"]
+        cli(binary, work, "check", "--since", "base", "--skip-release", "--reason", " ", code=1)
         (work / "untracked.txt").write_text("untracked")
         cli(binary, work, "check", "--since", "base", code=1)
         (work / "untracked.txt").unlink()
+        (work / ".changenote/new.md").unlink()
+        commit(work)
+        cli(binary, work, "check", "--since", "base", code=1)
         (work / ".changenote/invalid.md").write_text("invalid note")
         commit(work)
         cli(binary, work, "check", "--since", "base", "--skip-release", "--reason", "Docs", code=1)
