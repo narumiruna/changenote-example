@@ -45,8 +45,11 @@ Run `status` to check the configuration, paths, files, and versions; editor vali
 2. Follow the repository's note policy.
    - Add notes for features, fixes, breaking changes, and installation or other user-facing behavior.
    - Documentation-only changes, test-only changes, and internal refactors with no release impact normally need no note.
-3. Check existing notes for the same change and update the matching note instead of adding a duplicate.
-4. Use a unique note name containing only ASCII letters, digits, hyphens, or underscores, and write a concise user-facing summary.
+3. Select the bump from the repository's compatibility policy.
+   - If no policy is specified, use `patch` for backward-compatible fixes, `minor` for backward-compatible features, and `major` for breaking changes.
+   - Apply these defaults below `1.0.0` too, unless the repository specifies a different policy.
+4. Check existing notes for the same change and update the matching note instead of adding a duplicate.
+5. Use a unique note name containing only ASCII letters, digits, hyphens, or underscores, and write a concise user-facing summary.
    - Treat summaries as data and quote command arguments safely.
 
 ```sh
@@ -92,7 +95,7 @@ Keep required technical names and terms, and use conventional release-note verbs
 - Write commands, paths, option names, and API names in backticks.
 - For a breaking change, identify what no longer works and give the required migration steps.
   - Use imperative sentences for instructions.
-  - Select the bump from the repository's compatibility policy; do not assume every breaking change requires `major`.
+  - Use the bump-selection rules in "Add or Update a Note".
 - Check the technical facts and English text before completion.
   - `status` checks note structure and the release plan; it does not check ASD-STE100 compliance.
 
