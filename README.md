@@ -52,7 +52,18 @@ The output must match [`examples/notes/mixed/expected-status.json`](examples/not
 
 `status` does not change files. The `expected-*-CHANGELOG.md` files are illustrative generated output, not existing fixture changelogs. The verifier does not run `version`, `tag`, or publication. If you choose to run `version` manually, do so only in a disposable fixture checkout: it updates versions, writes changelogs and the release batch, and deletes consumed notes.
 
-Never copy all sample notes into this repository's active `.changenote/`. That directory is used by real release automation.
+Never copy sample notes into this repository's active `.changenote/`. That directory is used by real release automation.
+
+### Historical Python example release
+
+[PR #6](https://github.com/narumiruna/changenote-example/pull/6) added fictional Python notes to the active release queue.
+[PR #7](https://github.com/narumiruna/changenote-example/pull/7) consumed them and published `pkg-python@0.2.0`.
+Its changelog and release text describe a customizable greeting and a formatting fix, but neither change was implemented.
+The Python package still prints only `Hello from pkg-python!`.
+Do not use those entries as evidence of package features.
+The published release data is kept unchanged.
+
+Use the isolated [highest-bump fixture](examples/notes/highest/) to test patch and minor notes without a real release.
 
 ## Verify all examples
 
