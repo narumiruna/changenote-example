@@ -74,7 +74,7 @@ uv run --no-project --with pyyaml python -m unittest discover -s scripts -p 'tes
 
 For local CLI development, pass the absolute path to the built executable instead. The verifier copies fixtures into temporary directories and checks eleven fixtures, default/detailed status JSON, named/generated note creation, fixed-group plans, PR note checks, preview mock reports, matching template pins, expected exit codes, and failure paths. It verifies that read-only commands and the source repository do not change. It does not run release commands or contact GitHub. Generated changelog and JSON output are covered by the core CLI's Rust tests; static expected excerpts are checked against status details here.
 
-[Example CI](.github/workflows/examples.yml) installs the fixture CLI pin, runs the fixture verifier, and tests release operation selection with mocked Git output. uv supplies PyYAML for the workflow tests. These checks do not run release commands or contact GitHub.
+[CI](.github/workflows/ci.yml) installs the fixture CLI pin, runs the fixture verifier, and tests release operation selection with mocked Git output. uv supplies PyYAML for the workflow tests. These checks do not run release commands or contact GitHub.
 
 The [release workflow](.github/workflows/release.yml) uses the separate config-driven Action pin. It runs only on `main` pushes or explicit manual dispatch. Do not dispatch it to test examples.
 
