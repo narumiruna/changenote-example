@@ -74,7 +74,7 @@ uv run --no-project --with pyyaml python -m unittest discover -s scripts -p 'tes
 
 For local CLI development, pass the absolute path to the built executable instead. The verifier copies fixtures into temporary directories and checks eleven fixtures, default/detailed status JSON, named/generated note creation, fixed-group plans, PR note checks, preview mock reports, matching template pins, expected exit codes, and failure paths. It verifies that read-only commands and the source repository do not change. It does not run release commands or contact GitHub. Generated changelog and JSON output are covered by the core CLI's Rust tests; static expected excerpts are checked against status details here.
 
-[CI](.github/workflows/ci.yml) installs the fixture CLI pin, runs the fixture verifier, and tests release operation selection with mocked Git output. uv supplies PyYAML for the workflow tests. These checks do not run release commands or contact GitHub.
+[CI](.github/workflows/ci.yml) installs the fixture CLI pin, runs the fixture verifier, and checks release workflow metadata. uv supplies PyYAML for the workflow tests. These checks do not run release commands or contact GitHub.
 
 The [release workflow](.github/workflows/release.yml) uses the separate config-driven Action pin. It runs only on `main` pushes or explicit manual dispatch. Do not dispatch it to test examples.
 
@@ -95,14 +95,14 @@ See the Node.js, Rust, and Go package READMEs for their test commands. The Pytho
 
 ## Release safety
 
-The release workflow uses `narumiruna/changenote/release` at a reviewed full commit SHA. The Action installs Rust, builds its own compatible CLI, and caches the executable. No separate CLI pin or installation step is needed. A cold cache still requires compilation and network access. Fixture CI and the inactive preview template retain their independent older CLI pin.
+The release workflow uses `narumiruna/changenote/release` at full commit SHA `8e85cb358204340f540b48f8f2484f016c848fd7`, the latest remote `main` revision checked for this update. The Action installs Rust, builds its own compatible CLI, and caches the executable. No separate CLI pin or installation step is needed. A cold cache still requires compilation and network access. Fixture CI and the inactive preview template retain their independent older CLI pin.
 
 On ordinary pushes, `auto` manages the Release PR and publishes incomplete validated batches. On manual dispatch, select `manage-pr` (the default) or `retry-publication`. A retry publishes the latest validated batch without managing the PR. The Action does not merge PRs or publish package registries.
 
-The batch published by [PR #7](https://github.com/narumiruna/changenote-example/pull/7) contains legacy `notes` fields. The new publisher requires metadata-only batches and cannot replay this historical format. Its four GitHub Releases already exist. The workflow selects only PR management while both the last batch-changing first-parent commit and its saved batch blob match that exact published batch. It rejects manual publication retries for this batch. Other commits or blobs receive no exemption and remain subject to the Action's validation. Git lookup errors stop the workflow.
+The batch published by [PR #7](https://github.com/narumiruna/changenote-example/pull/7) contains legacy `notes` fields. Its four GitHub Releases already exist. The Action validates the parent release plan and complete generated tree, then checks every remote tag and GitHub Release. A fully published legacy batch is a successful no-op, including explicit publication retries. Missing tags, missing or draft Releases, tag conflicts, and invalid release data stop without remote writes for that batch. The workflow needs no repository-specific commit or blob exceptions.
 
-Do not edit or delete the historical batch, move tags, replace Releases, or add sample notes to force migration. After a real package change produces and merges a new batch through the updated Release PR, ordinary pushes automatically use the full release operation. If the base branch changes after operation selection, publication can wait for the next push or an explicit retry.
+Do not edit or delete the historical batch, move tags, replace Releases, or add sample notes to force migration. New Release PRs write metadata-only batches. After a real package change produces and merges a new batch, ordinary pushes publish it through the same Action.
 
 Disable the workflow to stop automation. To undo this migration, restore the previous workflow and its matching CLI installation; do not change historical release data.
 
-Local fixture and routing tests do not prove hosted cache restoration, token permissions, branch rules, or publication on GitHub. A maintainer must test those separately in an authorized disposable consumer repository. No real release is authorized by local verification.
+Local fixture and workflow metadata tests do not prove hosted cache restoration, token permissions, branch rules, or publication on GitHub. A maintainer must test those separately in an authorized disposable consumer repository. No real release is authorized by local verification.
