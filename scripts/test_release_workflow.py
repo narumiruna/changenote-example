@@ -64,6 +64,15 @@ class ReleaseWorkflow(unittest.TestCase):
             )
             return result, output.read_text()
 
+    def test_all_workflow_actions_are_pinned(self):
+        for path in sorted((ROOT / ".github/workflows").glob("*.yml")):
+            workflow = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
+            for job in workflow["jobs"].values():
+                for step in job.get("steps", []):
+                    if "uses" in step:
+                        with self.subTest(workflow=path.name, action=step["uses"]):
+                            self.assertRegex(step["uses"], r"^[^@\s]+@[0-9a-f]{40}$")
+
     def test_single_action_prepares_its_own_cli(self):
         self.assertEqual(set(self.workflow["jobs"]), {"release"})
         self.assertEqual(self.job["if"], "github.ref == 'refs/heads/main'")
@@ -73,7 +82,7 @@ class ReleaseWorkflow(unittest.TestCase):
             {"contents": "write", "pull-requests": "write"},
         )
         checkout, selector, action = self.job["steps"]
-        self.assertEqual(checkout["uses"], "actions/checkout@v7")
+        self.assertRegex(checkout["uses"], r"^actions/checkout@[0-9a-f]{40}$")
         self.assertEqual(
             checkout["with"],
             {"ref": "main", "fetch-depth": "0", "persist-credentials": "false"},
