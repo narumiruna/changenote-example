@@ -22,3 +22,5 @@ jobs:
         run: cargo install --git https://github.com/narumiruna/changenote --rev 3bb70bcc07a04bbaf6210d1b55e405df7b22cb35 --locked
       - name: Verify isolated examples
         run: uv run --no-project python scripts/verify_examples.py --cli changenote
+      - name: Verify release workflow routing
+        run: uv run --no-project --with pyyaml python -m unittest discover -s scripts -p 'test_*.py' -v

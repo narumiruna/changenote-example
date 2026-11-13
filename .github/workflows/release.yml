@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      operation:
+        description: Manage the release PR or retry publication
+        type: choice
+        default: manage-pr
+        options: [manage-pr, retry-publication]
 
 permissions:
   contents: read
@@ -25,28 +31,26 @@ jobs:
           ref: main
           fetch-depth: 0
           persist-credentials: false
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Install changenote
-        run: cargo install --git https://github.com/narumiruna/changenote --rev 3bb70bcc07a04bbaf6210d1b55e405df7b22cb35 --locked
-      - uses: narumiruna/changenote@3bb70bcc07a04bbaf6210d1b55e405df7b22cb35
+      - name: Select release operation
+        id: operation
+        env:
+          REQUESTED_OPERATION: ${{ inputs.operation || 'auto' }}
+        run: |
+          set -euo pipefail
+          operation=$REQUESTED_OPERATION
+          batch_commit=$(git log -1 --first-parent --format=%H -- .changenote/releases.json)
+          batch_blob=$(git rev-parse HEAD:.changenote/releases.json)
+          # PR #7 published this legacy batch. Keep its data unchanged.
+          if [[ $batch_commit == 6d0d38646eaf078b535909036bfecaad664e52a9 && $batch_blob == 3978e1a049dc7633ba3c36059bfdfcd85ac0f362 ]]; then
+            if [[ $operation == retry-publication ]]; then
+              echo '::error::The published legacy batch requires its original tooling for retries.'
+              exit 1
+            fi
+            operation=manage-pr
+            echo '::notice::The published legacy batch is retained. Only Release PR management will run until a new batch is merged.'
+          fi
+          printf 'operation=%s\n' "$operation" >> "$GITHUB_OUTPUT"
+      - uses: narumiruna/changenote/release@f4423760122463bf03a8d161c6f0bc4173afb6e0
         with:
           base-branch: main
-
-  publish:
-    needs: release
-    if: ${{ always() && github.ref == 'refs/heads/main' && needs.release.result != 'cancelled' }}
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: main
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Install changenote
-        run: cargo install --git https://github.com/narumiruna/changenote --rev 3bb70bcc07a04bbaf6210d1b55e405df7b22cb35 --locked
-      - uses: narumiruna/changenote/publish@3bb70bcc07a04bbaf6210d1b55e405df7b22cb35
-        with:
-          base-branch: main
+          operation: ${{ steps.operation.outputs.operation }}
