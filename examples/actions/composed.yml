@@ -1,0 +1,89 @@
+# Inactive template. Merge Action PR #7 before deployment.
+name: Composed release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Manage the PR or retry publication
+        type: choice
+        default: manage-pr
+        options: [manage-pr, retry-publication]
+permissions:
+  contents: read
+env:
+  CHANGENOTE_CLI_VERSION: 'v0.9.2'
+jobs:
+  manage-pr:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.operation == 'manage-pr')
+    runs-on: ubuntu-latest
+    concurrency:
+      group: changenote-pr-main
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: changenote/action/setup@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+        id: cli
+        with:
+          version: ${{ env.CHANGENOTE_CLI_VERSION }}
+      - uses: changenote/action/prepare@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+          operation: manage-pr
+      - uses: changenote/action/manage-pr@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+
+  select:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.operation == 'retry-publication')
+    runs-on: ubuntu-latest
+    outputs:
+      release-commit: ${{ steps.select.outputs.release-commit }}
+      publication-needed: ${{ steps.select.outputs.publication-needed }}
+    steps:
+      - uses: changenote/action/setup@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+        id: cli
+        with:
+          version: ${{ env.CHANGENOTE_CLI_VERSION }}
+      - uses: changenote/action/prepare@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+          operation: select
+      - uses: changenote/action/select@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+        id: select
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+
+  publish:
+    needs: select
+    if: needs.select.outputs.release-commit != '' && (needs.select.outputs.publication-needed == 'true' || (github.event_name == 'workflow_dispatch' && inputs.operation == 'retry-publication'))
+    runs-on: ubuntu-latest
+    concurrency:
+      group: changenote-publication-main
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.select.outputs.release-commit }}
+          persist-credentials: false
+      - uses: changenote/action/setup@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+        id: cli
+        with:
+          version: ${{ env.CHANGENOTE_CLI_VERSION }}
+      - uses: changenote/action/prepare@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+          operation: publish
+          expected-release-commit: ${{ needs.select.outputs.release-commit }}
+      - uses: changenote/action/publish@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+          expected-release-commit: ${{ needs.select.outputs.release-commit }}

@@ -247,10 +247,12 @@ def verify_preview_reports():
     readme = (ROOT / "README.md").read_text()
     pin = re.search(r"--rev ([0-9a-f]{40})", readme).group(1)
     template = (reports / "workflow.yml").read_text()
-    assert "--rev " + pin in template
     release = (ROOT / ".github/workflows/release.yml").read_text()
-    action_pin = re.search(r"changenote/action/release@([0-9a-f]{40})", release).group(1)
-    assert "changenote/action/preview@" + action_pin in template
+    action_pin = re.search(r"changenote/action@([0-9a-f]{40})", release).group(1)
+    assert "changenote/action/setup@" + action_pin in template
+    assert "changenote/action/select@" + action_pin in template
+    assert "v0.9.2" in template and "v0.9.2" in release
+    assert "cargo install" not in template
     content = (ROOT / ".github/workflows/ci.yml").read_text()
     revisions = re.findall(r"--rev (\S+)", content)
     assert revisions and all(revision == pin for revision in revisions)
