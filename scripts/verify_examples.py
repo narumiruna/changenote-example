@@ -221,10 +221,10 @@ def verify_generated(binary):
         )
 
 
-def verify_preview_reports():
+def verify_inspection_reports():
     import re
 
-    reports = ROOT / "examples/preview"
+    reports = ROOT / "examples/inspect"
     for kind in ("success", "conflict"):
         plan = json.loads((reports / f"expected-{kind}.json").read_text())
         assert len(plan) == 2
@@ -250,13 +250,13 @@ def verify_preview_reports():
     release = (ROOT / ".github/workflows/release.yml").read_text()
     action_pin = re.search(r"changenote/action@([0-9a-f]{40})", release).group(1)
     assert "changenote/action/setup@" + action_pin in template
-    assert "changenote/action/select@" + action_pin in template
-    assert "v0.9.2" in template and "v0.9.2" in release
+    assert "changenote/action/inspect@" + action_pin in template
+    assert re.search(r"^\s+version:", template + "\n" + release, re.MULTILINE) is None
     assert "cargo install" not in template
     content = (ROOT / ".github/workflows/ci.yml").read_text()
     revisions = re.findall(r"--rev (\S+)", content)
     assert revisions and all(revision == pin for revision in revisions)
-    assert not (ROOT / ".github/workflows/preview.yml").exists()
+    assert not (ROOT / ".github/workflows/inspect.yml").exists()
 
 
 def verify_check(binary):
@@ -345,11 +345,11 @@ def main():
         verify_fixture(binary, ROOT / "examples/planning" / name)
     verify_creation(binary)
     verify_generated(binary)
-    verify_preview_reports()
+    verify_inspection_reports()
     verify_check(binary)
     assert snapshot(ROOT) == before, "Verifier changed the example repository"
     print(
-        "Verified 11 fixtures, named/generated notes, PR checks, preview mock reports, and failure paths; no release actions ran."
+        "Verified 11 fixtures, named/generated notes, PR checks, inspection mock reports, and failure paths; no release actions ran."
     )
 
 

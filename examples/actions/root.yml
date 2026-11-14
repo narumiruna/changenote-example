@@ -1,29 +1,27 @@
-# Inactive template. Merge Action PR #7 before deployment.
+# Inactive template. Uses the merged seven-entry Action API.
 name: Release
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      operation:
-        description: Manage the release PR or retry publication
-        type: choice
-        default: manage-pr
-        options: [manage-pr, retry-publication]
+
 permissions:
   contents: write
   pull-requests: write
+
 concurrency:
-  group: changenote-release-${{ github.ref }}
+  group: changenote-release-main
   cancel-in-progress: false
+
 jobs:
   release:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: changenote/action@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action@339f86c81883cb39f3003a38534ca87c97d1d7c2
         with:
-          version: 'v0.9.2'
-          operation: ${{ inputs.operation || 'auto' }}
+          operation: auto

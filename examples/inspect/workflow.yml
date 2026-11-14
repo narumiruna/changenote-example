@@ -1,0 +1,16 @@
+name: Publication inspection
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: changenote/action/setup@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        id: cli
+      - id: inspect
+        uses: changenote/action/inspect@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+          base-branch: main
