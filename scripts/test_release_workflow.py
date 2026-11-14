@@ -48,67 +48,42 @@ class ReleaseWorkflow(unittest.TestCase):
                             self.assertIn(match[1] or "", PUBLIC)
                             self.assertEqual(match[2], action_pin())
                             self.assertNotIn("version", step.get("with", {}))
-        self.assertEqual(set(self.actions), {"", "setup", "prepare", "manage-pr", "inspect", "publish"})
+        self.assertEqual(set(self.actions), {""})
         for name, step in self.actions.items():
             self.assertIn(name, PUBLIC)
             self.assertTrue(step["uses"].endswith("@" + action_pin()))
 
-    def test_push_uses_root_auto_with_the_default_cli(self):
+    def test_two_steps_use_root_auto_with_the_default_cli(self):
         self.assertEqual(set(self.workflow["jobs"]), {"release"})
         self.assertEqual(self.job["if"], "github.ref == 'refs/heads/main'")
         self.assertEqual(self.job["runs-on"], "ubuntu-latest")
-        self.assertEqual(len(self.job["steps"]), 7)
+        self.assertEqual(len(self.job["steps"]), 2)
         checkout = self.job["steps"][0]
         self.assertRegex(checkout["uses"], r"^actions/checkout@[0-9a-f]{40}$")
-        self.assertEqual(checkout["with"], {
-            "ref": "main", "fetch-depth": "0", "persist-credentials": "false",
-        })
-        self.assertEqual(self.actions[""]["if"], "github.event_name == 'push'")
-        self.assertEqual(self.actions[""]["with"], {
-            "base-branch": "main", "operation": "auto",
-        })
+        self.assertEqual(checkout["with"], {"persist-credentials": "false"})
+        self.assertNotIn("if", self.actions[""])
+        self.assertEqual(self.actions[""]["with"], {"operation": "auto"})
         self.assertNotIn("cargo install", str(self.job))
         self.assertNotIn("rust-toolchain", str(self.job))
         self.assertTrue(all("run" not in step for step in self.job["steps"]))
 
-    def test_manual_pr_and_retry_paths_reuse_one_cli_installation(self):
-        self.assertEqual(self.actions["setup"].get("with", {}), {})
-        for name in ("setup", "prepare", "manage-pr", "inspect", "publish"):
-            self.assertIn("github.event_name == 'workflow_dispatch'", self.actions[name]["if"])
-        self.assertEqual(self.actions["prepare"]["with"]["operation"],
-                         "${{ inputs.operation == 'manage-pr' && 'manage-pr' || 'inspect' }}")
-        self.assertEqual(self.actions["manage-pr"]["if"],
-                         "github.event_name == 'workflow_dispatch' && inputs.operation == 'manage-pr'")
-        self.assertEqual(self.actions["inspect"]["if"],
-                         "github.event_name == 'workflow_dispatch' && inputs.operation == 'retry-publication'")
-        for name in ("prepare", "manage-pr", "inspect", "publish"):
-            self.assertEqual(self.actions[name]["with"]["cli-path"], "${{ steps.cli.outputs.cli-path }}")
-            self.assertEqual(self.actions[name]["with"]["base-branch"], "main")
-        self.assertEqual(self.actions["setup"]["id"], "cli")
-        self.assertEqual(self.actions["inspect"]["id"], "inspect")
+    def test_manual_dispatch_uses_root_policy_without_input_choices(self):
+        self.assertFalse(self.workflow["on"]["workflow_dispatch"])
+        self.assertNotIn("inputs.", str(self.actions[""]))
+        self.assertNotIn("publish-script", self.actions[""]["with"])
+        self.assertNotIn("release-script", self.actions[""]["with"])
 
-    def test_retry_requires_a_successful_nonempty_inspected_commit(self):
-        publish = self.actions["publish"]
-        self.assertEqual(publish["if"],
-                         "github.event_name == 'workflow_dispatch' && inputs.operation == 'retry-publication' && steps.inspect.outputs.release-commit != ''")
-        self.assertEqual(publish["with"]["expected-release-commit"],
-                         "${{ steps.inspect.outputs.release-commit }}")
-        steps = self.job["steps"]
-        self.assertLess(steps.index(self.actions["prepare"]), steps.index(self.actions["inspect"]))
-        self.assertLess(steps.index(self.actions["inspect"]), steps.index(publish))
-        for step in steps:
+    def test_checkout_failure_does_not_bypass_default_step_gates(self):
+        for step in self.job["steps"]:
             self.assertNotEqual(step.get("continue-on-error"), "true")
             self.assertNotIn("always(", step.get("if", ""))
+        self.assertEqual(set(self.actions), {""})
 
     def test_events_permissions_and_concurrency_are_preserved(self):
         self.assertEqual(set(self.workflow["on"]), {"push", "workflow_dispatch"})
         self.assertEqual(self.workflow["on"]["push"]["branches"], ["main"])
-        operation = self.workflow["on"]["workflow_dispatch"]["inputs"]["operation"]
-        self.assertEqual(operation["type"], "choice")
-        self.assertEqual(operation["default"], "manage-pr")
-        self.assertEqual(operation["options"], ["manage-pr", "retry-publication"])
-        self.assertEqual(self.workflow["permissions"], {"contents": "read"})
-        self.assertEqual(self.job["permissions"], {"contents": "write", "pull-requests": "write"})
+        self.assertEqual(self.workflow["permissions"], {"contents": "write", "pull-requests": "write"})
+        self.assertNotIn("permissions", self.job)
         self.assertEqual(self.workflow["concurrency"], {
             "group": "changenote-release-main", "cancel-in-progress": "false",
         })

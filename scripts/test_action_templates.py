@@ -17,18 +17,12 @@ def load(name):
 
 
 class ActionTemplates(unittest.TestCase):
-    def test_root_template_has_explicit_push_and_manual_routes(self):
+    def test_root_template_matches_the_minimal_active_workflow(self):
         workflow = load("root.yml")
-        self.assertEqual(workflow["on"]["workflow_dispatch"]["inputs"]["operation"]["default"], "manage-pr")
-        actions = action_steps(workflow)
-        self.assertEqual(actions[""]["with"]["operation"], "auto")
-        self.assertNotIn("version", actions[""]["with"])
-        self.assertEqual(actions[""]["if"], "github.event_name == 'push'")
-        self.assertIn("inputs.operation == 'manage-pr'", actions["manage-pr"]["if"])
-        self.assertIn("inputs.operation == 'retry-publication'", actions["publish"]["if"])
-        self.assertIn("steps.inspect.outputs.release-commit != ''", actions["publish"]["if"])
-        self.assertEqual(actions["publish"]["with"]["expected-release-commit"],
-                         "${{ steps.inspect.outputs.release-commit }}")
+        self.assertEqual(workflow, load_workflow(ROOT / ".github/workflows/release.yml"))
+        self.assertEqual(len(workflow["jobs"]["release"]["steps"]), 2)
+        self.assertEqual(action_steps(workflow)[""]["with"], {"operation": "auto"})
+        self.assertFalse(workflow["on"]["workflow_dispatch"])
 
     def test_composed_jobs_reuse_one_cli_installation_each(self):
         workflow = load("composed.yml")
@@ -68,6 +62,11 @@ class ActionTemplates(unittest.TestCase):
                 self.assertEqual(job["concurrency"]["cancel-in-progress"], "false")
             self.assertNotEqual(job.get("continue-on-error"), "true")
             self.assertNotIn("always(", job.get("if", ""))
+            for step in job["steps"]:
+                self.assertNotEqual(step.get("continue-on-error"), "true")
+                self.assertNotIn("always(", step.get("if", ""))
+        self.assertEqual(load("composed.yml")["on"]["workflow_dispatch"]["inputs"]["operation"]["default"], "manage-pr")
+        self.assertIn("inputs.operation == 'manage-pr'", jobs["manage-pr"]["if"])
         for name, scope in (("manage-pr", "manage-pr"), ("inspect", "inspect"), ("publish", "publish")):
             prepare = next(step for step in jobs[name]["steps"]
                            if step["uses"].startswith("changenote/action/prepare@"))

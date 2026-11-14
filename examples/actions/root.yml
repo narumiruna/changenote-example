@@ -5,15 +5,10 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      operation:
-        description: Manage the release PR or retry publication
-        type: choice
-        default: manage-pr
-        options: [manage-pr, retry-publication]
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 concurrency:
   group: changenote-release-main
@@ -21,45 +16,12 @@ concurrency:
 
 jobs:
   release:
-    permissions:
-      contents: write
-      pull-requests: write
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: main
-          fetch-depth: 0
           persist-credentials: false
       - uses: changenote/action@339f86c81883cb39f3003a38534ca87c97d1d7c2
-        if: github.event_name == 'push'
         with:
-          base-branch: main
           operation: auto
-      - uses: changenote/action/setup@339f86c81883cb39f3003a38534ca87c97d1d7c2
-        if: github.event_name == 'workflow_dispatch'
-        id: cli
-      - uses: changenote/action/prepare@339f86c81883cb39f3003a38534ca87c97d1d7c2
-        if: github.event_name == 'workflow_dispatch'
-        with:
-          cli-path: ${{ steps.cli.outputs.cli-path }}
-          base-branch: main
-          operation: ${{ inputs.operation == 'manage-pr' && 'manage-pr' || 'inspect' }}
-      - uses: changenote/action/manage-pr@339f86c81883cb39f3003a38534ca87c97d1d7c2
-        if: github.event_name == 'workflow_dispatch' && inputs.operation == 'manage-pr'
-        with:
-          cli-path: ${{ steps.cli.outputs.cli-path }}
-          base-branch: main
-      - uses: changenote/action/inspect@339f86c81883cb39f3003a38534ca87c97d1d7c2
-        if: github.event_name == 'workflow_dispatch' && inputs.operation == 'retry-publication'
-        id: inspect
-        with:
-          cli-path: ${{ steps.cli.outputs.cli-path }}
-          base-branch: main
-      - uses: changenote/action/publish@339f86c81883cb39f3003a38534ca87c97d1d7c2
-        if: github.event_name == 'workflow_dispatch' && inputs.operation == 'retry-publication' && steps.inspect.outputs.release-commit != ''
-        with:
-          cli-path: ${{ steps.cli.outputs.cli-path }}
-          base-branch: main
-          expected-release-commit: ${{ steps.inspect.outputs.release-commit }}

@@ -4,15 +4,15 @@ These templates are inactive because they are outside `.github/workflows/`.
 They use merged Action commit `339f86c81883cb39f3003a38534ca87c97d1d7c2` from [Action PR #9](https://github.com/changenote/action/pull/9).
 The active Release workflow and read-only [inspection template](../inspect/README.md) use the same full SHA.
 
-- [Root workflow](root.yml) uses root `auto` on push for PR management and built-in GitHub publication.
-  - Manual PR work calls standalone `manage-pr` after preparation.
-  - A manual publication retry inspects the latest batch and calls `publish` with its exact commit.
-  - Root never receives a manual menu choice as its operation.
+- [Root workflow](root.yml) matches the active two-step workflow: checkout, then root `auto`.
+  - Push manages the PR and publishes incomplete validated batches.
+  - Manual dispatch only manages the PR. There is no manual operation menu.
+  - Root owns CLI installation and project preparation; no standalone setup steps are needed.
 - [Composed workflow](composed.yml) separates PR management, read-only inspection, and guarded publication into independent jobs.
   - Each job installs the CLI once with `/setup` and reuses its trusted `cli-path`.
   - `/prepare` prepares project tools and offline caches without PR or publication writes.
   - `/inspect` returns the verified batch, including completed batches.
-  - Automatic publication uses `publication-needed`; manual retries can include completed batches.
+  - Automatic publication uses `publication-needed`; its manual menu supports explicit retries, including completed batches.
   - `/publish` receives the exact inspected commit and stops if the latest batch changes before writes.
   - PR management failure does not block the independent inspection and publication jobs.
 
