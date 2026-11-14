@@ -2,17 +2,39 @@
 
 Tested examples for the language-independent [changenote](https://github.com/changenote/changenote) CLI. Each fixture has a separate config and known starting versions. Example notes are outside the active `.changenote/` directory and cannot trigger the repository's release workflow.
 
-## Install
+## Install and use
 
-Requires stable Rust with edition 2024 support. Git is required for PR checks. Python 3.11 or later and uv are required only for the example verifier.
+Choose one of these three methods.
+The uv and uvx methods require uv.
+The Cargo method requires stable Rust with edition 2024 support.
 
-Install the exact CLI revision used by fixture CI:
+### uv
+
+Install the CLI, then run it:
 
 ```sh
-cargo install --git https://github.com/changenote/changenote --rev c644511a48a4c09a72b1d7a7b58dc6d6d8f374f5 --locked
+uv tool install changenote
+changenote --help
 ```
 
-This is a pinned source revision, not a promise that the latest published binary has the same features. Install the compatible CLI before running these examples.
+### uvx
+
+Run the CLI without a separate installation:
+
+```sh
+uvx changenote --help
+```
+
+### Cargo
+
+Install the CLI, then run it:
+
+```sh
+cargo install changenote --locked
+changenote --help
+```
+
+For the tested examples, use the pinned CLI revision in [Verify all examples](#verify-all-examples).
 
 ## Examples
 
@@ -67,6 +89,16 @@ The published release data is kept unchanged.
 Use the isolated [highest-bump fixture](examples/notes/highest/) to test patch and minor notes without a real release.
 
 ## Verify all examples
+
+Verification requires Git, stable Rust with edition 2024 support, Python 3.11 or later, and uv.
+Install the exact CLI revision used by fixture CI:
+
+```sh
+cargo install --git https://github.com/changenote/changenote --rev c644511a48a4c09a72b1d7a7b58dc6d6d8f374f5 --locked
+```
+
+This is a pinned source revision; the latest published release can have different features.
+Run these checks from the repository root:
 
 ```sh
 uv run --no-project python scripts/verify_examples.py --cli changenote
