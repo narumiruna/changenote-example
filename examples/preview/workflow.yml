@@ -9,8 +9,8 @@ jobs:
     steps:
       - uses: dtolnay/rust-toolchain@stable
       - name: Install changenote
-        run: cargo install --git https://github.com/narumiruna/changenote --rev 3bb70bcc07a04bbaf6210d1b55e405df7b22cb35 --locked
+        run: cargo install --git https://github.com/changenote/changenote --rev c644511a48a4c09a72b1d7a7b58dc6d6d8f374f5 --locked
       - id: preview
-        uses: narumiruna/changenote/preview@3bb70bcc07a04bbaf6210d1b55e405df7b22cb35
+        uses: changenote/action/preview@4b2d07126b8a4da4b44aa5fb8256dd81a69e2e3a
         with:
           base-branch: main

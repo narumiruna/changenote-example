@@ -1,6 +1,6 @@
 # changenote-example
 
-Tested examples for the language-independent [changenote](https://github.com/narumiruna/changenote) CLI. Each fixture has a separate config and known starting versions. Example notes are outside the active `.changenote/` directory and cannot trigger the repository's release workflow.
+Tested examples for the language-independent [changenote](https://github.com/changenote/changenote) CLI. Each fixture has a separate config and known starting versions. Example notes are outside the active `.changenote/` directory and cannot trigger the repository's release workflow.
 
 ## Install
 
@@ -9,7 +9,7 @@ Requires stable Rust with edition 2024 support. Git is required for PR checks. P
 Install the exact CLI revision used by fixture CI and the inactive preview template:
 
 ```sh
-cargo install --git https://github.com/narumiruna/changenote --rev 3bb70bcc07a04bbaf6210d1b55e405df7b22cb35 --locked
+cargo install --git https://github.com/changenote/changenote --rev c644511a48a4c09a72b1d7a7b58dc6d6d8f374f5 --locked
 ```
 
 This is a pinned source revision, not a promise that the latest published binary has the same features. Install the compatible CLI before running these examples.
@@ -56,8 +56,8 @@ Never copy sample notes into this repository's active `.changenote/`. That direc
 
 ### Historical Python example release
 
-[PR #6](https://github.com/narumiruna/changenote-example/pull/6) added fictional Python notes to the active release queue.
-[PR #7](https://github.com/narumiruna/changenote-example/pull/7) consumed them and published `pkg-python@0.2.0`.
+[PR #6](https://github.com/changenote/example/pull/6) added fictional Python notes to the active release queue.
+[PR #7](https://github.com/changenote/example/pull/7) consumed them and published `pkg-python@0.2.0`.
 Its changelog and release text describe a customizable greeting and a formatting fix, but neither change was implemented.
 The Python package still prints only `Hello from pkg-python!`.
 Do not use those entries as evidence of package features.
@@ -95,11 +95,16 @@ See the Node.js, Rust, and Go package READMEs for their test commands. The Pytho
 
 ## Release safety
 
-The release workflow uses `narumiruna/changenote/release` at full commit SHA `8e85cb358204340f540b48f8f2484f016c848fd7`, the latest remote `main` revision checked for this update. The Action installs Rust, builds its own compatible CLI, and caches the executable. No separate CLI pin or installation step is needed. A cold cache still requires compilation and network access. Fixture CI and the inactive preview template retain their independent older CLI pin.
+The release workflow uses `changenote/action/release` at full commit SHA `4b2d07126b8a4da4b44aa5fb8256dd81a69e2e3a`.
+Merge [Action PR #1](https://github.com/changenote/action/pull/1) before this workflow migration.
+The Action installs Rust, builds its pinned CLI, and caches the executable.
+No separate CLI installation step is needed in the release workflow. A cold cache still requires compilation and network access.
+Fixture CI and the inactive preview template use CLI revision `c644511a48a4c09a72b1d7a7b58dc6d6d8f374f5`, which matches the Action's CLI pin.
+CLI and Action commit SHAs are separate. See the [migration guide](https://github.com/changenote/action/blob/main/docs/migration.md).
 
 On ordinary pushes, `auto` manages the Release PR and publishes incomplete validated batches. On manual dispatch, select `manage-pr` (the default) or `retry-publication`. A retry publishes the latest validated batch without managing the PR. The Action does not merge PRs or publish package registries.
 
-The batch published by [PR #7](https://github.com/narumiruna/changenote-example/pull/7) contains legacy `notes` fields. Its four GitHub Releases already exist. The Action validates the parent release plan and complete generated tree, then checks every remote tag and GitHub Release. A fully published legacy batch is a successful no-op, including explicit publication retries. Missing tags, missing or draft Releases, tag conflicts, and invalid release data stop without remote writes for that batch. The workflow needs no repository-specific commit or blob exceptions.
+The batch published by [PR #7](https://github.com/changenote/example/pull/7) contains legacy `notes` fields. Its four GitHub Releases already exist. The Action validates the parent release plan and complete generated tree, then checks every remote tag and GitHub Release. A fully published legacy batch is a successful no-op, including explicit publication retries. Missing tags, missing or draft Releases, tag conflicts, and invalid release data stop without remote writes for that batch. The workflow needs no repository-specific commit or blob exceptions.
 
 Do not edit or delete the historical batch, move tags, replace Releases, or add sample notes to force migration. New Release PRs write metadata-only batches. After a real package change produces and merges a new batch, ordinary pushes publish it through the same Action.
 

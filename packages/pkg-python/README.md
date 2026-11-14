@@ -11,7 +11,7 @@ uv run --locked pkg-python
 
 ## Release correction
 
-The `0.2.0` entries in [CHANGELOG.md](CHANGELOG.md) and the [GitHub Release](https://github.com/narumiruna/changenote-example/releases/tag/changenote/pkg-python%40v0.2.0) came from fictional example notes in [PR #6](https://github.com/narumiruna/changenote-example/pull/6).
+The `0.2.0` entries in [CHANGELOG.md](CHANGELOG.md) and the [GitHub Release](https://github.com/changenote/example/releases/tag/changenote/pkg-python%40v0.2.0) came from fictional example notes in [PR #6](https://github.com/changenote/example/pull/6).
 No customizable greeting or output formatting fix was implemented in that release.
 The published release data is kept unchanged.
 

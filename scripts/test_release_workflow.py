@@ -41,7 +41,7 @@ class ReleaseWorkflow(unittest.TestCase):
             {"ref": "main", "fetch-depth": "0", "persist-credentials": "false"},
         )
         self.assertRegex(
-            action["uses"], r"^narumiruna/changenote/release@[0-9a-f]{40}$"
+            action["uses"], r"^changenote/action/release@[0-9a-f]{40}$"
         )
         self.assertEqual(
             action["with"],
