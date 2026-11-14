@@ -1,12 +1,16 @@
 # changenote-example
 
-Tested examples for the language-independent [changenote](https://github.com/changenote/changenote) CLI. Each fixture has a separate config and known starting versions. Example notes are outside the active `.changenote/` directory and cannot trigger the repository's release workflow.
+Tested examples for the [changenote CLI](https://github.com/changenote/changenote) and [GitHub Actions](https://github.com/changenote/action).
+Inspect change notes, SemVer release plans, version sources, and release workflows across Python, Node.js, Rust, and Go.
+
+The fixtures in `examples/` have separate configurations and known starting versions.
+The packages in `packages/` use the root configuration and have a real release workflow.
 
 ## Install and use
 
 Choose one of these three methods.
-The uv and uvx methods require uv.
-The Cargo method requires stable Rust with edition 2024 support.
+The uv and uvx methods require [uv](https://docs.astral.sh/uv/).
+Cargo installation requires stable Rust with edition 2024 support.
 
 ### uv
 
@@ -34,36 +38,21 @@ cargo install changenote --locked
 changenote --help
 ```
 
-For the tested examples, use the pinned CLI revision in [Verify all examples](#verify-all-examples).
+These commands use published releases.
+For exact fixture output, use the source revision in [Verify all examples](#verify-all-examples).
 
-## Examples
+The CLI includes agent instructions:
 
-| Feature | Example | Status |
-| --- | --- | --- |
-| Single-package patch | [patch fixture](examples/notes/patch/) | Supported |
-| Major bump with migration steps | [major fixture](examples/notes/major/) | Supported |
-| Shared patch across packages | [shared fixture](examples/notes/shared/) | Supported |
-| No pending notes | [empty fixture](examples/notes/empty/) | Supported |
-| Highest requested bump applied once | [highest fixture](examples/notes/highest/) | Supported |
-| Different bumps in one note | [mixed fixture](examples/notes/mixed/) | Supported |
-| Bump groups and multiline Markdown | [multiline fixture](examples/notes/multiline/) | Supported |
-| Manifest sources and exact JSON formatting | [manifest guide](examples/manifests/README.md) | Supported |
-| Read-only PR note check and explicit exemption | [PR check guide](examples/check/README.md) | Supported |
-| Release PRs, tags, and GitHub Releases | [release workflow](.github/workflows/release.yml) | Pinned to the merged seven-entry Action API; not dispatched by verification |
-| Complete root workflow and reusable operation Actions | [Action templates](examples/actions/README.md) | Inactive; use the same full Action SHA as the release workflow |
-| Note provenance and automatic names | [planning guide](examples/planning/README.md) | Supported |
-| Fixed version groups | [fixed fixtures](examples/planning/README.md#fixed-version-groups) | Supported |
-| Read-only publication inspection | [inspection template and mock reports](examples/inspect/README.md) | Supported; not dispatched by verification |
-| Linked groups | — | Not supported |
-| Dependency propagation and lockfile updates | — | Not supported |
-| Snapshots and prereleases | — | Not supported |
-| Registry publication | — | Not provided by the reusable Actions |
+```sh
+changenote skill
+```
 
-See the [note guide](examples/notes/README.md) for commands and expected output.
+With uvx, use `uvx changenote skill` instead.
+See [AGENTS.md](AGENTS.md) for this repository's agent requirements.
 
-## Safe setup
+## Try an isolated fixture
 
-Run these commands from this repository root. Copy a fixture into a temporary directory, then inspect its plan:
+Run these commands from the repository root:
 
 ```sh
 work=$(mktemp -d)
@@ -71,96 +60,122 @@ cp -R examples/notes/mixed/fixture/. "$work/"
 changenote --root "$work" status
 ```
 
-The output must match [`examples/notes/mixed/expected-status.json`](examples/notes/mixed/expected-status.json). Starting versions are `1.2.3`: `pkg-node` gets `1.2.4`, and `pkg-python` gets `1.3.0`.
+`status` prints JSON without changing files.
+Compare it with [expected-status.json](examples/notes/mixed/expected-status.json):
 
-`status` does not change files. The `expected-*-CHANGELOG.md` files are illustrative generated output, not existing fixture changelogs. The verifier does not run `version`, `tag`, or publication. If you choose to run `version` manually, do so only in a disposable fixture checkout: it updates versions, writes changelogs and the release batch, and deletes consumed notes.
+| Package | Starting version | Planned version | Bump |
+| --- | --- | --- | --- |
+| `pkg-node` | `1.2.3` | `1.2.4` | patch |
+| `pkg-python` | `1.2.3` | `1.3.0` | minor |
 
-Never copy sample notes into this repository's active `.changenote/`. That directory is used by real release automation.
+Keep experiments in temporary fixture copies.
+Never copy sample notes into the root `.changenote/` directory: it is an active release queue.
 
-### Historical Python example release
+## Examples
 
-[PR #6](https://github.com/changenote/example/pull/6) added fictional Python notes to the active release queue.
-[PR #7](https://github.com/changenote/example/pull/7) consumed them and published `pkg-python@0.2.0`.
-Its changelog and release text describe a customizable greeting and a formatting fix, but neither change was implemented.
-The Python package still prints only `Hello from pkg-python!`.
-Do not use those entries as evidence of package features.
-The published release data is kept unchanged.
+| Guide | Coverage |
+| --- | --- |
+| [Change notes](examples/notes/README.md) | Patch, major, shared, empty, highest-bump, mixed-bump, and multiline notes |
+| [Release planning](examples/planning/README.md) | Note paths, automatic note names, and fixed version groups |
+| [Version sources](examples/manifests/README.md) | `VERSION`, `pyproject.toml`, `Cargo.toml`, and `package.json` |
+| [PR note checks](examples/check/README.md) | Committed changes, release exemptions, and validation failures |
+| [Release Actions](examples/actions/README.md) | Root and composed workflow templates |
+| [Publication inspection](examples/inspect/README.md) | Read-only workflow template and mock publication reports |
 
-Use the isolated [highest-bump fixture](examples/notes/highest/) to test patch and minor notes without a real release.
+These examples cover specific CLI and Action revisions, not every feature of the latest release.
+The workflow templates remain inactive outside `.github/workflows/`.
+Expected changelog files are reference output; `status` does not generate them.
 
 ## Verify all examples
 
-Verification requires Git, stable Rust with edition 2024 support, Python 3.11 or later, and uv.
-Install the exact CLI revision used by fixture CI:
+Verification requires Git, uv, Python 3.11 or later, and stable Rust with edition 2024 support.
+Install the exact CLI revision used by [CI](.github/workflows/ci.yml):
 
 ```sh
 cargo install --git https://github.com/changenote/changenote --rev c644511a48a4c09a72b1d7a7b58dc6d6d8f374f5 --locked
 ```
 
-This is a pinned source revision; the latest published release can have different features.
-Run these checks from the repository root:
+This fixture source pin is separate from published CLI versions and the release Action pin.
+Run the checks from the repository root:
 
 ```sh
 uv run --no-project python scripts/verify_examples.py --cli changenote
 uv run --no-project --with pyyaml python -m unittest discover -s scripts -p 'test_*.py' -v
 ```
 
-For local CLI development, pass the absolute path to the built executable instead. The verifier copies fixtures into temporary directories and checks eleven fixtures, default/detailed status JSON, named/generated note creation, fixed-group plans, PR note checks, inspection mock reports, matching Action pins, expected exit codes, and failure paths. It verifies that read-only commands and the source repository do not change. It does not run release commands or contact GitHub. Generated changelog and JSON output are covered by the core CLI's Rust tests; static expected excerpts are checked against status details here.
+For a local CLI build, pass its absolute executable path to `--cli`.
 
-[CI](.github/workflows/ci.yml) installs the fixture CLI pin, runs the fixture verifier, and checks release workflow metadata. uv supplies PyYAML for the workflow tests. These checks do not run release commands or contact GitHub.
+- The verifier checks 11 fixtures, note creation, default and detailed plans, PR note checks, inspection mock reports, and failure cases.
+  - It uses temporary copies and checks that the source repository stays unchanged.
+  - It compares expected changelog excerpts with planned notes; it does not generate release files.
+- The workflow tests check Action pins, permissions, event routing, CLI reuse, and publication guards.
+  - They also check template syntax when `actionlint` is installed.
 
-The [release workflow](.github/workflows/release.yml) uses the separate config-driven Action pin. It runs only on `main` pushes or explicit manual dispatch. Do not dispatch it to test examples.
+These checks do not run `version`, `tag`, or publication, and do not contact GitHub.
+Actual release writes are tested in the core CLI repository.
 
-## Active package configuration
+## Repository packages
 
-The root `.changenote/config.json` still uses plain-text `VERSION` for all packages:
+The active [configuration](.changenote/config.json) uses a plain-text `VERSION` file in each package directory.
+These package versions are independent of fixture versions.
 
-| Package | Directory | Active version source |
+| Package | Directory | Package guide |
 | --- | --- | --- |
-| `pkg-python` | `packages/pkg-python` | `VERSION` |
-| `pkg-node` | `packages/pkg-node` | `VERSION` |
-| `pkg-rust` | `packages/pkg-rust` | `VERSION` |
-| `pkg-go` | `packages/pkg-go` | `VERSION` |
+| `pkg-python` | `packages/pkg-python` | [Python](packages/pkg-python/README.md) |
+| `pkg-node` | `packages/pkg-node` | [Node.js](packages/pkg-node/README.md) |
+| `pkg-rust` | `packages/pkg-rust` | [Rust](packages/pkg-rust/README.md) |
+| `pkg-go` | `packages/pkg-go` | [Go](packages/pkg-go/README.md) |
 
-These versions are independent of fixture starting versions. Changenote updates only configured version files. It does not synchronize other manifests, dependency ranges, or lockfiles and does not run language-specific publication tools. The isolated manifest example changes no active package settings.
+The manifest fixture has its own configuration; it does not change these active version sources.
+The package guides describe their run or test commands.
+The Python package has no automated tests; run its smoke check from the repository root with Python 3.14 or later:
 
-See the Node.js, Rust, and Go package READMEs for their test commands. The Python package has no automated test suite; run `uv run --locked pkg-python` from this root for a smoke check (Python 3.14 or later). It must print `Hello from pkg-python!`. The root Python project uses a uv workspace; the other packages have their own test tools.
+```sh
+uv run --locked pkg-python
+```
 
-## Action interfaces
+Expected output: `Hello from pkg-python!`.
 
-The [root and composed templates](examples/actions/README.md) use the seven-entry API from merged [Action PR #9](https://github.com/changenote/action/pull/9).
-The public entry points are root, `setup`, `prepare`, `check`, `manage-pr`, `inspect`, and `publish`.
-The templates and active Release workflow pin the same merge commit, `339f86c81883cb39f3003a38534ca87c97d1d7c2`.
-The former release, select, and preview Action paths are removed without aliases.
+### Historical Python release
 
-Root accepts only `hooks` and `auto`. Individual operations use standalone Actions.
-The composed template separates PR management, read-only inspection, and exact-commit publication.
-Inspection includes completed batches; automatic GitHub work must check `publication-needed`, not only commit presence.
-The template tests do not dispatch workflows or change release data.
+[PR #6](https://github.com/changenote/example/pull/6) added fictional Python notes that [PR #7](https://github.com/changenote/example/pull/7) published as `pkg-python@0.2.0`.
+The package does not implement the custom greeting or formatting fixes described in those entries.
+Do not use the historical changelog or release text as evidence of package features.
+Use the isolated [highest-bump fixture](examples/notes/highest/) to test patch and minor notes instead.
+
+## Release automation
+
+The active [Release workflow](.github/workflows/release.yml) runs only on `main`.
+It has two steps: checkout, then `changenote/action@339f86c81883cb39f3003a38534ca87c97d1d7c2` with `operation: auto`.
+
+| Trigger | Behavior |
+| --- | --- |
+| Push to `main` | Manage the Release PR and publish incomplete validated batches as Git tags and GitHub Releases |
+| Manual dispatch on `main` | Manage the Release PR only; no publication retry menu |
+
+The root Action installs the CLI and prepares project tools.
+It uses the default latest stable PyPI CLI, installed as a prebuilt wheel through uv outside the checkout.
+It does not build the CLI from source.
+The Action SHA pins Action code, not the CLI; different jobs or runs can resolve different CLI versions.
+The Action does not merge PRs or upload packages to registries.
+
+Use the inactive [composed template](examples/actions/composed.yml) for separate PR management, inspection, and exact-commit publication jobs.
+Its manual menu supports explicit publication retries after review.
+The [inspection template](examples/inspect/README.md) provides read-only reports with `contents: read` and no consumer checkout.
+Inspection returns completed batches too; automatic publication must check `publication-needed`, not only `release-commit`.
 
 ## Release safety
 
-The release workflow pins the root `changenote/action` to merged commit `339f86c81883cb39f3003a38534ca87c97d1d7c2`.
-On ordinary pushes, root explicitly uses `operation: auto` for PR management and incomplete GitHub publication.
-Root's default `hooks` mode does not enable built-in publication.
+- Do not dispatch the Release workflow to test examples or add fictional notes to force a release.
+- Do not run `version`, `tag`, or publication against active packages to compare fixture output.
+  - If you test `version`, use a disposable fixture checkout: it updates versions and changelogs, saves a release batch, and consumes notes.
+- Preserve the historical [release batch](.changenote/releases.json), which contains legacy `notes` fields.
+  - Do not change its format, move published tags, replace Releases, or rewrite release text.
+- Keep workflow templates inactive until a maintainer reviews them for deployment.
+  - Validate tools, token permissions, branch rules, caches, and publication in an authorized disposable repository.
+  - PRs created with `GITHUB_TOKEN` do not start PR workflows automatically; review required checks and token setup separately.
 
-Action calls omit `version` and use the default `latest` stable PyPI CLI, installed as a prebuilt wheel through uv outside the consumer checkout.
-Installation never builds the CLI from source or falls back to a source build.
-Fixture CI independently retains source revision `c644511a48a4c09a72b1d7a7b58dc6d6d8f374f5`.
-
-The active workflow has only checkout and root `auto`, with no manual operation menu.
-Manual dispatch only manages the Release PR; it does not publish an older batch.
-The root Action installs the CLI and prepares project tools, so no separate setup or preparation steps are needed.
-For independent inspection or explicit exact-commit publication retries, use the inactive [composed template](examples/actions/composed.yml) after review. Its manual menu is not part of the active workflow.
-The Action SHA pins the Action code, not the CLI. Separate jobs and runs can resolve different latest CLI versions.
-The inactive read-only [inspection template](examples/inspect/README.md) uses only `setup` and `inspect`, with `contents: read` and no consumer checkout.
-The Action never merges PRs or uploads to package registries.
-CLI and Action revisions are separate; see the [migration guide](https://github.com/changenote/action/blob/339f86c81883cb39f3003a38534ca87c97d1d7c2/docs/migration.md).
-
-The batch published by [PR #7](https://github.com/changenote/example/pull/7) contains legacy `notes` fields. Its four GitHub Releases already exist. The Action validates the parent release plan and complete generated tree, then checks every remote tag and GitHub Release. A fully published legacy batch is a successful no-op, including explicit publication retries. Missing tags, missing or draft Releases, tag conflicts, and invalid release data stop without remote writes for that batch. The workflow needs no repository-specific commit or blob exceptions.
-
-Do not edit or delete the historical batch, move tags, replace Releases, or add sample notes to force migration. New Release PRs write metadata-only batches. After a real package change produces and merges a new batch, ordinary pushes publish it through the same Action.
-
-Disable the workflow to stop automation. To undo this migration, restore the previous workflow and its matching Action SHA and CLI version together; do not change historical release data.
-
-Local fixture and workflow metadata tests do not prove hosted cache restoration, token permissions, branch rules, or publication on GitHub. A maintainer must test those separately in an authorized disposable consumer repository. No real release is authorized by local verification.
+Local verification does not prove hosted release readiness or authorize a real release.
+For Action interface changes and publication recovery, use the [pinned migration guide](https://github.com/changenote/action/blob/339f86c81883cb39f3003a38534ca87c97d1d7c2/docs/migration.md).
+To stop automation, disable the Release workflow.
+For rollback, restore the previous workflow with its matching Action SHA and CLI version.
