@@ -1,7 +1,7 @@
 # Composable release Actions
 
 These workflow templates are inactive because they are outside `.github/workflows/`.
-They use published Action commit `fd043d7e8e0d8cb7656b8f1f19f5459e213d8513` from [Action PR #7](https://github.com/changenote/action/pull/7).
+They use published Action commit `b0fcdb183debdd058cd2298dec830c2caa5354e6` from [Action PR #7](https://github.com/changenote/action/pull/7).
 Review and merge that Action PR before deploying this workflow migration.
 The same full SHA is used by the proposed active workflow and the read-only preview template.
 

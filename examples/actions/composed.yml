@@ -28,15 +28,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: changenote/action/setup@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/setup@b0fcdb183debdd058cd2298dec830c2caa5354e6
         id: cli
         with:
           version: ${{ env.CHANGENOTE_CLI_VERSION }}
-      - uses: changenote/action/prepare@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/prepare@b0fcdb183debdd058cd2298dec830c2caa5354e6
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
           operation: manage-pr
-      - uses: changenote/action/manage-pr@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/manage-pr@b0fcdb183debdd058cd2298dec830c2caa5354e6
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
 
@@ -47,15 +47,15 @@ jobs:
       release-commit: ${{ steps.select.outputs.release-commit }}
       publication-needed: ${{ steps.select.outputs.publication-needed }}
     steps:
-      - uses: changenote/action/setup@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/setup@b0fcdb183debdd058cd2298dec830c2caa5354e6
         id: cli
         with:
           version: ${{ env.CHANGENOTE_CLI_VERSION }}
-      - uses: changenote/action/prepare@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/prepare@b0fcdb183debdd058cd2298dec830c2caa5354e6
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
           operation: select
-      - uses: changenote/action/select@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/select@b0fcdb183debdd058cd2298dec830c2caa5354e6
         id: select
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
@@ -74,16 +74,16 @@ jobs:
         with:
           ref: ${{ needs.select.outputs.release-commit }}
           persist-credentials: false
-      - uses: changenote/action/setup@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/setup@b0fcdb183debdd058cd2298dec830c2caa5354e6
         id: cli
         with:
           version: ${{ env.CHANGENOTE_CLI_VERSION }}
-      - uses: changenote/action/prepare@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/prepare@b0fcdb183debdd058cd2298dec830c2caa5354e6
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
           operation: publish
           expected-release-commit: ${{ needs.select.outputs.release-commit }}
-      - uses: changenote/action/publish@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/publish@b0fcdb183debdd058cd2298dec830c2caa5354e6
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
           expected-release-commit: ${{ needs.select.outputs.release-commit }}

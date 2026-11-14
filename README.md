@@ -97,7 +97,7 @@ See the Node.js, Rust, and Go package READMEs for their test commands. The Pytho
 ## New Action interfaces
 
 The [root and composed templates](examples/actions/README.md) show the new complete root entry point and reusable `/setup`, `/prepare`, `/manage-pr`, `/select`, and `/publish` Actions.
-The templates are outside `.github/workflows/` and use the published Action commit `fd043d7e8e0d8cb7656b8f1f19f5459e213d8513`.
+The templates are outside `.github/workflows/` and use the published Action commit `b0fcdb183debdd058cd2298dec830c2caa5354e6`.
 The proposed Release workflow uses the same commit at the root entry point with an explicit operation.
 Review and merge [Action PR #7](https://github.com/changenote/action/pull/7) before merging this migration.
 Selection returns completed batches, so automatic GitHub work must check `publication-needed`, not only a nonempty commit.
@@ -105,7 +105,7 @@ The template tests do not dispatch workflows or change release data.
 
 ## Release safety
 
-The proposed release workflow uses `changenote/action` at full commit SHA `fd043d7e8e0d8cb7656b8f1f19f5459e213d8513`.
+The proposed release workflow uses `changenote/action` at full commit SHA `b0fcdb183debdd058cd2298dec830c2caa5354e6`.
 Merge [Action PR #7](https://github.com/changenote/action/pull/7) before this workflow migration.
 Root explicitly selects `auto` for built-in publication; its default `hooks` operation would not enable that publication.
 The Action installs the exact published CLI `v0.9.2` as a prebuilt PyPI wheel through uv, outside the consumer checkout.

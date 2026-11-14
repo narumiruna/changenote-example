@@ -7,12 +7,12 @@ jobs:
   preview:
     runs-on: ubuntu-latest
     steps:
-      - uses: changenote/action/setup@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/setup@b0fcdb183debdd058cd2298dec830c2caa5354e6
         id: cli
         with:
           version: 'v0.9.2'
       - id: preview
-        uses: changenote/action/select@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+        uses: changenote/action/select@b0fcdb183debdd058cd2298dec830c2caa5354e6
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
           base-branch: main

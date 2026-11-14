@@ -32,7 +32,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       # Merge https://github.com/changenote/action/pull/7 before this workflow migration.
-      - uses: changenote/action@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action@b0fcdb183debdd058cd2298dec830c2caa5354e6
         with:
           base-branch: main
           version: 'v0.9.2'
