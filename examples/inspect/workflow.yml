@@ -9,8 +9,6 @@ jobs:
     steps:
       - uses: changenote/action/setup@339f86c81883cb39f3003a38534ca87c97d1d7c2
         id: cli
-        with:
-          version: 'v0.9.2'
       - id: inspect
         uses: changenote/action/inspect@339f86c81883cb39f3003a38534ca87c97d1d7c2
         with:

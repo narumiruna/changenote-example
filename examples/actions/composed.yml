@@ -12,8 +12,6 @@ on:
         options: [manage-pr, retry-publication]
 permissions:
   contents: read
-env:
-  CHANGENOTE_CLI_VERSION: 'v0.9.2'
 jobs:
   manage-pr:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.operation == 'manage-pr')
@@ -30,8 +28,6 @@ jobs:
           persist-credentials: false
       - uses: changenote/action/setup@339f86c81883cb39f3003a38534ca87c97d1d7c2
         id: cli
-        with:
-          version: ${{ env.CHANGENOTE_CLI_VERSION }}
       - uses: changenote/action/prepare@339f86c81883cb39f3003a38534ca87c97d1d7c2
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
@@ -49,8 +45,6 @@ jobs:
     steps:
       - uses: changenote/action/setup@339f86c81883cb39f3003a38534ca87c97d1d7c2
         id: cli
-        with:
-          version: ${{ env.CHANGENOTE_CLI_VERSION }}
       - uses: changenote/action/prepare@339f86c81883cb39f3003a38534ca87c97d1d7c2
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
@@ -76,8 +70,6 @@ jobs:
           persist-credentials: false
       - uses: changenote/action/setup@339f86c81883cb39f3003a38534ca87c97d1d7c2
         id: cli
-        with:
-          version: ${{ env.CHANGENOTE_CLI_VERSION }}
       - uses: changenote/action/prepare@339f86c81883cb39f3003a38534ca87c97d1d7c2
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}

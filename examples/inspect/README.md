@@ -2,7 +2,7 @@
 
 [workflow.yml](workflow.yml) is an inactive template outside `.github/workflows/`.
 It uses `/setup` and `/inspect` at merged Action commit `339f86c81883cb39f3003a38534ca87c97d1d7c2`, the same full SHA as the active Release workflow.
-Both use CLI `v0.9.2`; fixture CI retains its separate source pin.
+Both omit `version` and use the default latest stable PyPI CLI; fixture CI retains its separate source pin.
 
 The Actions need Linux, Bash, Git, gh, jq, standard coreutils, and only `contents: read`.
 `/setup` installs a prebuilt PyPI wheel with uv; `/inspect` reuses its trusted same-job `cli-path`.

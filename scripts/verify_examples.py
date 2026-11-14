@@ -251,7 +251,7 @@ def verify_inspection_reports():
     action_pin = re.search(r"changenote/action@([0-9a-f]{40})", release).group(1)
     assert "changenote/action/setup@" + action_pin in template
     assert "changenote/action/inspect@" + action_pin in template
-    assert "v0.9.2" in template and "v0.9.2" in release
+    assert re.search(r"^\s+version:", template + "\n" + release, re.MULTILINE) is None
     assert "cargo install" not in template
     content = (ROOT / ".github/workflows/ci.yml").read_text()
     revisions = re.findall(r"--rev (\S+)", content)

@@ -112,7 +112,7 @@ The release workflow pins `changenote/action` and its standalone Actions to merg
 On ordinary pushes, root explicitly uses `operation: auto` for PR management and incomplete GitHub publication.
 Root's default `hooks` mode does not enable built-in publication.
 
-The workflow keeps the exact published CLI `v0.9.2`, installed as a prebuilt PyPI wheel through uv outside the consumer checkout.
+Action calls omit `version` and use the default `latest` stable PyPI CLI, installed as a prebuilt wheel through uv outside the consumer checkout.
 Installation never builds the CLI from source or falls back to a source build.
 Fixture CI independently retains source revision `c644511a48a4c09a72b1d7a7b58dc6d6d8f374f5`.
 
@@ -125,6 +125,7 @@ Manual workflow choices are not root operations:
    - Completed batches can be retried explicitly; existing tags and release text are not replaced.
 
 Each manual path reuses the trusted same-job `cli-path`.
+The Action SHA pins the Action code, not the CLI. Separate jobs and runs can resolve different latest CLI versions.
 The inactive read-only [inspection template](examples/inspect/README.md) uses only `setup` and `inspect`, with `contents: read` and no consumer checkout.
 The Action never merges PRs or uploads to package registries.
 CLI and Action revisions are separate; see the [migration guide](https://github.com/changenote/action/blob/339f86c81883cb39f3003a38534ca87c97d1d7c2/docs/migration.md).

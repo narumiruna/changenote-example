@@ -27,8 +27,8 @@ The `operation` input on `/prepare` is an environment scope, not a command:
 Only the `publish` scope requires `expected-release-commit`.
 Standalone operation jobs retain responsibility for their tool environment. Use the same tools as preparation; set `RUSTUP_TOOLCHAIN` explicitly if it must override a checked-in toolchain file.
 
-These examples keep CLI `v0.9.2` for the repository's plain-text version sources.
-Use the same compatible exact CLI version in every job.
+These examples omit `version` and use the default `latest` stable PyPI CLI.
+Each job resolves the CLI during setup, then reuses that installation. Different jobs and runs can resolve different CLI versions; the Action SHA does not pin the CLI.
 A CLI path is valid only within its job; never take it from contributor input or pass it between jobs.
 Built-in publication creates Git tags and GitHub Releases, not registry uploads.
 

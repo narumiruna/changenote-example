@@ -8,7 +8,6 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = {"", "setup", "prepare", "check", "manage-pr", "inspect", "publish"}
-CLI_VERSION = "v0.9.2"
 
 
 def load_workflow(path):
@@ -48,12 +47,13 @@ class ReleaseWorkflow(unittest.TestCase):
                             self.assertIsNotNone(match)
                             self.assertIn(match[1] or "", PUBLIC)
                             self.assertEqual(match[2], action_pin())
+                            self.assertNotIn("version", step.get("with", {}))
         self.assertEqual(set(self.actions), {"", "setup", "prepare", "manage-pr", "inspect", "publish"})
         for name, step in self.actions.items():
             self.assertIn(name, PUBLIC)
             self.assertTrue(step["uses"].endswith("@" + action_pin()))
 
-    def test_push_uses_only_root_auto_with_the_existing_cli_version(self):
+    def test_push_uses_root_auto_with_the_default_cli(self):
         self.assertEqual(set(self.workflow["jobs"]), {"release"})
         self.assertEqual(self.job["if"], "github.ref == 'refs/heads/main'")
         self.assertEqual(self.job["runs-on"], "ubuntu-latest")
@@ -65,14 +65,14 @@ class ReleaseWorkflow(unittest.TestCase):
         })
         self.assertEqual(self.actions[""]["if"], "github.event_name == 'push'")
         self.assertEqual(self.actions[""]["with"], {
-            "base-branch": "main", "version": CLI_VERSION, "operation": "auto",
+            "base-branch": "main", "operation": "auto",
         })
         self.assertNotIn("cargo install", str(self.job))
         self.assertNotIn("rust-toolchain", str(self.job))
         self.assertTrue(all("run" not in step for step in self.job["steps"]))
 
     def test_manual_pr_and_retry_paths_reuse_one_cli_installation(self):
-        self.assertEqual(self.actions["setup"]["with"], {"version": CLI_VERSION})
+        self.assertEqual(self.actions["setup"].get("with", {}), {})
         for name in ("setup", "prepare", "manage-pr", "inspect", "publish"):
             self.assertIn("github.event_name == 'workflow_dispatch'", self.actions[name]["if"])
         self.assertEqual(self.actions["prepare"]["with"]["operation"],

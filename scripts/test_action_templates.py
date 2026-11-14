@@ -22,7 +22,7 @@ class ActionTemplates(unittest.TestCase):
         self.assertEqual(workflow["on"]["workflow_dispatch"]["inputs"]["operation"]["default"], "manage-pr")
         actions = action_steps(workflow)
         self.assertEqual(actions[""]["with"]["operation"], "auto")
-        self.assertEqual(actions[""]["with"]["version"], "v0.9.2")
+        self.assertNotIn("version", actions[""]["with"])
         self.assertEqual(actions[""]["if"], "github.event_name == 'push'")
         self.assertIn("inputs.operation == 'manage-pr'", actions["manage-pr"]["if"])
         self.assertIn("inputs.operation == 'retry-publication'", actions["publish"]["if"])
@@ -39,12 +39,12 @@ class ActionTemplates(unittest.TestCase):
                 setups = [step for step in job["steps"]
                           if step.get("uses", "").startswith("changenote/action/setup@")]
                 self.assertEqual(len(setups), 1)
-                self.assertEqual(setups[0]["with"]["version"], "${{ env.CHANGENOTE_CLI_VERSION }}")
+                self.assertEqual(setups[0].get("with", {}), {})
                 for step in job["steps"]:
                     self.assertNotIn("run", step)
                     if re.match(r"changenote/action/(prepare|manage-pr|inspect|publish)@", step["uses"]):
                         self.assertEqual(step["with"]["cli-path"], "${{ steps.cli.outputs.cli-path }}")
-        self.assertEqual(workflow["env"]["CHANGENOTE_CLI_VERSION"], "v0.9.2")
+        self.assertNotIn("CHANGENOTE_CLI_VERSION", workflow.get("env", {}))
 
     def test_publication_uses_inspected_identity_and_separate_state(self):
         jobs = load("composed.yml")["jobs"]
@@ -80,7 +80,7 @@ class ActionTemplates(unittest.TestCase):
         steps = workflow["jobs"]["inspect"]["steps"]
         self.assertEqual(len(steps), 2)
         self.assertEqual(steps[0]["uses"], "changenote/action/setup@" + action_pin())
-        self.assertEqual(steps[0]["with"]["version"], "v0.9.2")
+        self.assertEqual(steps[0].get("with", {}), {})
         self.assertEqual(steps[1]["uses"], "changenote/action/inspect@" + action_pin())
         self.assertEqual(steps[1]["with"]["cli-path"], "${{ steps.cli.outputs.cli-path }}")
         self.assertNotIn("checkout", str(steps))
@@ -101,6 +101,7 @@ class ActionTemplates(unittest.TestCase):
                         self.assertIsNotNone(match)
                         self.assertIn(match[1] or "", PUBLIC)
                         self.assertEqual(match[2], action_pin())
+                        self.assertNotIn("version", step.get("with", {}))
         active = {p.name for p in (ROOT / ".github/workflows").glob("*.yml")}
         self.assertEqual(active, {"ci.yml", "release.yml"})
         self.assertFalse((ROOT / "examples/preview").exists())
