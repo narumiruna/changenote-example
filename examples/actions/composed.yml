@@ -1,4 +1,4 @@
-# Inactive template. Merge Action PR #7 before deployment.
+# Inactive template. Uses the merged seven-entry Action API.
 name: Composed release
 on:
   push:
@@ -28,41 +28,41 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: changenote/action/setup@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/setup@339f86c81883cb39f3003a38534ca87c97d1d7c2
         id: cli
         with:
           version: ${{ env.CHANGENOTE_CLI_VERSION }}
-      - uses: changenote/action/prepare@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/prepare@339f86c81883cb39f3003a38534ca87c97d1d7c2
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
           operation: manage-pr
-      - uses: changenote/action/manage-pr@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/manage-pr@339f86c81883cb39f3003a38534ca87c97d1d7c2
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
 
-  select:
+  inspect:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.operation == 'retry-publication')
     runs-on: ubuntu-latest
     outputs:
-      release-commit: ${{ steps.select.outputs.release-commit }}
-      publication-needed: ${{ steps.select.outputs.publication-needed }}
+      release-commit: ${{ steps.inspect.outputs.release-commit }}
+      publication-needed: ${{ steps.inspect.outputs.publication-needed }}
     steps:
-      - uses: changenote/action/setup@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/setup@339f86c81883cb39f3003a38534ca87c97d1d7c2
         id: cli
         with:
           version: ${{ env.CHANGENOTE_CLI_VERSION }}
-      - uses: changenote/action/prepare@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/prepare@339f86c81883cb39f3003a38534ca87c97d1d7c2
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
-          operation: select
-      - uses: changenote/action/select@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
-        id: select
+          operation: inspect
+      - uses: changenote/action/inspect@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        id: inspect
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
 
   publish:
-    needs: select
-    if: needs.select.outputs.release-commit != '' && (needs.select.outputs.publication-needed == 'true' || (github.event_name == 'workflow_dispatch' && inputs.operation == 'retry-publication'))
+    needs: inspect
+    if: needs.inspect.outputs.release-commit != '' && (needs.inspect.outputs.publication-needed == 'true' || (github.event_name == 'workflow_dispatch' && inputs.operation == 'retry-publication'))
     runs-on: ubuntu-latest
     concurrency:
       group: changenote-publication-main
@@ -72,18 +72,18 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.select.outputs.release-commit }}
+          ref: ${{ needs.inspect.outputs.release-commit }}
           persist-credentials: false
-      - uses: changenote/action/setup@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/setup@339f86c81883cb39f3003a38534ca87c97d1d7c2
         id: cli
         with:
           version: ${{ env.CHANGENOTE_CLI_VERSION }}
-      - uses: changenote/action/prepare@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+      - uses: changenote/action/prepare@339f86c81883cb39f3003a38534ca87c97d1d7c2
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
           operation: publish
-          expected-release-commit: ${{ needs.select.outputs.release-commit }}
-      - uses: changenote/action/publish@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+          expected-release-commit: ${{ needs.inspect.outputs.release-commit }}
+      - uses: changenote/action/publish@339f86c81883cb39f3003a38534ca87c97d1d7c2
         with:
           cli-path: ${{ steps.cli.outputs.cli-path }}
-          expected-release-commit: ${{ needs.select.outputs.release-commit }}
+          expected-release-commit: ${{ needs.inspect.outputs.release-commit }}
