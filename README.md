@@ -79,7 +79,7 @@ Never copy sample notes into the root `.changenote/` directory: it is an active 
 | [Release planning](examples/planning/README.md) | Note paths, automatic note names, and fixed version groups |
 | [Version sources](examples/manifests/README.md) | `VERSION`, `pyproject.toml`, `Cargo.toml`, and `package.json` |
 | [PR note checks](examples/check/README.md) | Committed changes, release exemptions, and validation failures |
-| [Release Actions](examples/actions/README.md) | Root and composed workflow templates |
+| [Release Actions](examples/actions/README.md) | Root, composed, command-hook, and external-CI workflow templates |
 | [Publication inspection](examples/inspect/README.md) | Read-only workflow template and mock publication reports |
 
 These examples cover specific CLI and Action revisions, not every feature of the latest release.
@@ -161,6 +161,8 @@ The Action does not merge PRs or upload packages to registries.
 
 Use the inactive [composed template](examples/actions/composed.yml) for separate PR management, inspection, and exact-commit publication jobs.
 Its manual menu supports explicit publication retries after review.
+Use the [command-hook template](examples/actions/command-hooks.yml) for project-owned publication scripts.
+Use the [external CI template](examples/actions/external-ci.yml) for external CI and Docker jobs at the verified release commit.
 The [inspection template](examples/inspect/README.md) provides read-only reports with `contents: read` and no consumer checkout.
 Inspection returns completed batches too; automatic publication must check `publication-needed`, not only `release-commit`.
 
