@@ -31,7 +31,8 @@ jobs:
           ref: main
           fetch-depth: 0
           persist-credentials: false
-      - uses: narumiruna/changenote/release@8e85cb358204340f540b48f8f2484f016c848fd7
+      # Merge https://github.com/changenote/action/pull/1 before this workflow migration.
+      - uses: changenote/action/release@4b2d07126b8a4da4b44aa5fb8256dd81a69e2e3a
         with:
           base-branch: main
           operation: ${{ inputs.operation || 'auto' }}

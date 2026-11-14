@@ -55,4 +55,4 @@ Expected exit: `0`. `note_paths` contains `.changenote/new.md`. No files are wri
 
 The [verifier](../../scripts/verify_examples.py) runs these success cases and tests deleted notes, invalid notes, invalid exemptions, dirty trees, conflicting bumps, and overwrite attempts in temporary directories.
 
-For a consumer PR workflow, use the [core CI example](https://github.com/narumiruna/changenote#check-pr-notes): full checkout history, a compatible pinned CLI, and an available remote base ref. Define how documentation-only PRs and generated Release PRs are exempted before making that job required. The example-verification workflow does not impose a note policy on this repository.
+For a consumer PR workflow, use the [core CI example](https://github.com/changenote/changenote#check-pr-notes): full checkout history, a compatible pinned CLI, and an available remote base ref. Define how documentation-only PRs and generated Release PRs are exempted before making that job required. The example-verification workflow does not impose a note policy on this repository.
