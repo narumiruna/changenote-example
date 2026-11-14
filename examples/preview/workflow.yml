@@ -7,10 +7,12 @@ jobs:
   preview:
     runs-on: ubuntu-latest
     steps:
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Install changenote
-        run: cargo install --git https://github.com/changenote/changenote --rev c644511a48a4c09a72b1d7a7b58dc6d6d8f374f5 --locked
-      - id: preview
-        uses: changenote/action/preview@4b2d07126b8a4da4b44aa5fb8256dd81a69e2e3a
+      - uses: changenote/action/setup@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+        id: cli
         with:
+          version: 'v0.9.2'
+      - id: preview
+        uses: changenote/action/select@fd043d7e8e0d8cb7656b8f1f19f5459e213d8513
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
           base-branch: main

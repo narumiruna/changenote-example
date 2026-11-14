@@ -41,11 +41,12 @@ class ReleaseWorkflow(unittest.TestCase):
             {"ref": "main", "fetch-depth": "0", "persist-credentials": "false"},
         )
         self.assertRegex(
-            action["uses"], r"^changenote/action/release@[0-9a-f]{40}$"
+            action["uses"], r"^changenote/action@[0-9a-f]{40}$"
         )
         self.assertEqual(
             action["with"],
-            {"base-branch": "main", "operation": "${{ inputs.operation || 'auto' }}"},
+            {"base-branch": "main", "version": "v0.9.2",
+             "operation": "${{ inputs.operation || 'auto' }}"},
         )
         self.assertNotIn("cargo install", str(self.job))
         self.assertNotIn("rust-toolchain", str(self.job))
