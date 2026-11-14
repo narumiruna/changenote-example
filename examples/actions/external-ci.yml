@@ -1,0 +1,119 @@
+# Inactive template. Requires caller-owned reusable CI and Docker workflows.
+name: Release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Manage the release PR or retry publication
+        type: choice
+        default: manage-pr
+        options: [manage-pr, retry-publication]
+permissions:
+  contents: read
+env:
+  CHANGENOTE_NODE_VERSION: '26.11.1'
+  CHANGENOTE_NPM_VERSION: '11.20.0'
+jobs:
+  inspect:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.operation == 'retry-publication')
+    runs-on: ubuntu-latest
+    outputs:
+      release-commit: ${{ steps.inspect.outputs.release-commit }}
+      publication-needed: ${{ steps.inspect.outputs.publication-needed }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: changenote/action/setup@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        id: cli
+      - uses: changenote/action/prepare@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+          operation: inspect
+          node-version: ${{ env.CHANGENOTE_NODE_VERSION }}
+          npm-version: ${{ env.CHANGENOTE_NPM_VERSION }}
+      - uses: changenote/action/inspect@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        id: inspect
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+
+  validate:
+    needs: inspect
+    if: needs.inspect.outputs.release-commit != '' && (needs.inspect.outputs.publication-needed == 'true' || (github.event_name == 'workflow_dispatch' && inputs.operation == 'retry-publication'))
+    permissions:
+      contents: read
+      actions: read
+    uses: ./.github/workflows/ci.yml
+    with:
+      revision: ${{ needs.inspect.outputs.release-commit }}
+
+  release:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.operation == 'manage-pr')
+    concurrency:
+      group: changenote-release-pr-main
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: changenote/action/setup@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        id: cli
+      - uses: changenote/action/prepare@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+          operation: manage-pr
+          node-version: ${{ env.CHANGENOTE_NODE_VERSION }}
+          npm-version: ${{ env.CHANGENOTE_NPM_VERSION }}
+      - uses: changenote/action/manage-pr@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+
+  publish:
+    needs: [inspect, validate]
+    if: ${{ !cancelled() && needs.validate.result == 'success' && needs.inspect.outputs.release-commit != '' }}
+    concurrency:
+      group: changenote-publication-main
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      release-commit: ${{ steps.publish.outputs.release-commit }}
+      releases: ${{ steps.publish.outputs.releases }}
+      published: ${{ steps.publish.outputs.published }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.inspect.outputs.release-commit }}
+          persist-credentials: false
+      - uses: changenote/action/setup@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        id: cli
+      - uses: changenote/action/prepare@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+          operation: publish
+          expected-release-commit: ${{ needs.inspect.outputs.release-commit }}
+          node-version: ${{ env.CHANGENOTE_NODE_VERSION }}
+          npm-version: ${{ env.CHANGENOTE_NPM_VERSION }}
+      - uses: changenote/action/publish@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        id: publish
+        with:
+          cli-path: ${{ steps.cli.outputs.cli-path }}
+          expected-release-commit: ${{ needs.inspect.outputs.release-commit }}
+
+  docker:
+    needs: publish
+    if: ${{ !cancelled() && needs.publish.result == 'success' && needs.publish.outputs.release-commit != '' && (needs.publish.outputs.published == 'true' || (github.event_name == 'workflow_dispatch' && inputs.operation == 'retry-publication')) }}
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/docker.yml
+    with:
+      revision: ${{ needs.publish.outputs.release-commit }}
+      version-tag: ${{ fromJSON(needs.publish.outputs.releases)[0].tag }}

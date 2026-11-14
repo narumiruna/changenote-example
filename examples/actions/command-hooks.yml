@@ -1,0 +1,29 @@
+# Inactive template. Configure caller-owned scripts and dependencies before use.
+name: Release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: changenote-hooks-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      # Configure project runtimes, dependencies, caches, and registry credentials
+      # here. The scripts must test/build the verified source before upload.
+      - uses: changenote/action@339f86c81883cb39f3003a38534ca87c97d1d7c2
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          prepare: 'false'
+          publish-script: bash scripts/publish.sh
+          release-script: bash scripts/release.sh
